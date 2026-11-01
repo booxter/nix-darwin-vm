@@ -78,6 +78,9 @@ let
           virtualisation.vmVariant.system.build.nixInstaller = lib.mkForce (
             pkgs.writeText "fixture.tar.xz" "test installer"
           );
+          virtualisation.vmVariant.system.build.toplevel = lib.mkForce (
+            pkgs.writeText "fixture-system" "test configuration"
+          );
         }
       ];
     };

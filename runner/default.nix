@@ -1,6 +1,7 @@
 {
   buildGoModule,
   lib,
+  nix,
   openssh,
   xz,
 }:
@@ -11,6 +12,7 @@ buildGoModule {
   vendorHash = "sha256-coHCpgjyAarT1N2nJ63eXpv3doWTrORMq94YLhcQT3A=";
   __darwinAllowLocalNetworking = true;
   nativeCheckInputs = [
+    nix
     openssh
     xz
   ];

@@ -25,6 +25,7 @@ type configuration struct {
 	IPSW           string       `json:"ipsw"`
 	StateDirectory string       `json:"stateDirectory"`
 	NixInstaller   nixInstaller `json:"nixInstaller"`
+	System         string       `json:"system"`
 }
 
 var bootstrapUserPattern = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_.-]*$`)
@@ -61,6 +62,9 @@ func loadConfiguration(path string) (configuration, error) {
 	}
 	if err := config.NixInstaller.validate(); err != nil {
 		return config, err
+	}
+	if !filepath.IsAbs(config.System) {
+		return config, errors.New("system must be an absolute store path")
 	}
 
 	config.StateDirectory, err = filepath.Abs(config.StateDirectory)

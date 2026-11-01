@@ -19,21 +19,25 @@ import (
 )
 
 type fakeVM struct {
-	Name             string
-	State            string
-	IPSW             string
-	Cores            int
-	Memory           int
-	Graphics         bool
-	Creations        int
-	Runs             int
-	Interrupted      bool
-	Password         string
-	User             string
-	MacOSVersion     string
-	KeyInstalled     bool
-	NixVersion       string
-	NixInstallations int
+	Name              string
+	State             string
+	IPSW              string
+	Cores             int
+	Memory            int
+	Graphics          bool
+	Creations         int
+	Runs              int
+	Interrupted       bool
+	Password          string
+	User              string
+	MacOSVersion      string
+	KeyInstalled      bool
+	NixVersion        string
+	NixInstallations  int
+	CopyTrusted       bool
+	Copies            int
+	TransferredSystem string
+	CopiedSystem      string
 }
 
 func TestMain(m *testing.M) {
@@ -52,6 +56,8 @@ func TestMain(m *testing.M) {
 			os.Exit(fakeSudo())
 		case "install-nix-fixture":
 			os.Exit(fakeNixInstall())
+		case "nix":
+			os.Exit(fakeNixCopy())
 		default:
 			os.Exit(run(os.Args[1:], os.Stderr))
 		}
@@ -210,7 +216,7 @@ func fakeCommands(t *testing.T) {
 		t.Fatal(err)
 	}
 	bin := t.TempDir()
-	for _, name := range []string{"tart", "sw_vers", "sudo", "install-nix-fixture"} {
+	for _, name := range []string{"tart", "sw_vers", "sudo", "install-nix-fixture", "nix"} {
 		if err := os.Symlink(executable, filepath.Join(bin, name)); err != nil {
 			t.Fatal(err)
 		}
@@ -227,6 +233,7 @@ func tartFixture(t *testing.T) vmFixture {
 		BootstrapUser: "vmadmin",
 		IPSW:          "/nix/store/example.ipsw", StateDirectory: filepath.Join(t.TempDir(), "VM's 100% state"),
 		NixInstaller: nixInstaller{Type: "nix", Version: "2.35.4", Path: nixArchive(t, "2.35.4")},
+		System:       "/nix/store/fixture-system",
 	}
 	return vmFixture{configuration: config, dialer: newSSHTestServer(t, config.StateDirectory)}
 }
@@ -273,6 +280,31 @@ func fakeNixInstall() int {
 	}
 	vm.NixVersion = os.Args[1]
 	vm.NixInstallations++
+	if err := saveFakeVM(directory, vm); err != nil {
+		return 1
+	}
+	return 0
+}
+
+func fakeNixCopy() int {
+	if !slices.Contains(os.Args, "copy") {
+		return 2
+	}
+	if os.Getenv("NIX_DARWIN_VM_TEST_FAIL") == "copy" {
+		fmt.Fprintln(os.Stderr, "fixture closure copy failed")
+		return 17
+	}
+	credentials, err := os.Getwd()
+	if err != nil {
+		return 1
+	}
+	directory := filepath.Dir(credentials)
+	vm, err := readFakeVM(directory)
+	if err != nil || !vm.CopyTrusted || vm.NixVersion == "" {
+		return 1
+	}
+	vm.Copies++
+	vm.TransferredSystem = os.Args[len(os.Args)-1]
 	if err := saveFakeVM(directory, vm); err != nil {
 		return 1
 	}

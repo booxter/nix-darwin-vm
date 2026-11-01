@@ -23,6 +23,7 @@ let
       stateDirectory
       ;
     ipsw = config.system.build.ipsw;
+    system = config.system.build.toplevel;
     nixInstaller = {
       inherit (installer) type version;
       path = config.system.build.nixInstaller;
@@ -104,7 +105,11 @@ in
 
     vm = pkgs.writeShellApplication {
       name = "run-${config.networking.hostName}-vm";
-      runtimeInputs = [ pkgs.tart ];
+      runtimeInputs = [
+        pkgs.tart
+        pkgs.nix
+        pkgs.openssh
+      ];
       text = ''
         exec ${lib.getExe runner} --config ${configuration} "$@"
       '';

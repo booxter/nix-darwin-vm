@@ -35,6 +35,8 @@ nix run .#darwinConfigurations.example.config.system.build.vm
 The first build downloads the selected Apple IPSW and Nix installer. The first
 run creates a 50 GB guest disk, creates the `bootstrapUser` administrator account
 (default `vmadmin`), and installs Nix for all users.
+The VM variant's configuration is built on the host and copied at startup.
+Later runs transfer only missing store paths. The configuration is not activated.
 Wait for the readiness message, then connect from another terminal:
 
 ```sh
@@ -51,6 +53,10 @@ State defaults to `./<hostname>-vm`, relative to the working directory. Run both
 launchers from the same directory when using a relative state path. Account
 credentials and SSH keys are stored in `<stateDirectory>/credentials`; use
 `credentials/password` for guest login and sudo. Keep this directory private.
+
+Copied configurations are retained in the guest profile
+`~/.local/state/nix-darwin-vm/system`. The bootstrap account is trusted by the
+guest's Nix daemon for configuration uploads.
 
 Later runs reuse the disk, credentials, and Nix installation, and apply CPU and
 memory settings.

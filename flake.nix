@@ -55,6 +55,8 @@
       devShells.aarch64-darwin.default = pkgs.mkShell {
         packages = [
           pkgs.go
+          pkgs.nix
+          pkgs.openssh
           pkgs.xz
         ];
       };

@@ -87,6 +87,9 @@ func TestCreateAndReuseVM(t *testing.T) {
 	if vm.Cores != 2 || vm.Memory != 4096 || vm.Graphics || !vm.KeyInstalled || vm.Password == "" {
 		t.Fatalf("unexpected initial VM: %+v", vm)
 	}
+	if vm.Copies != 1 || vm.CopiedSystem != config.System {
+		t.Fatalf("guest configuration was not copied once: %+v", vm)
+	}
 	if _, err := os.Stat(filepath.Join(otherHome, "fake-vm.json")); !errors.Is(err, os.ErrNotExist) {
 		t.Fatalf("runner used the inherited TART_HOME: %v", err)
 	}
@@ -99,6 +102,7 @@ func TestCreateAndReuseVM(t *testing.T) {
 	config.IPSW = "/nix/store/another.ipsw"
 	config.Cores = 4
 	config.Graphics = true
+	config.System = "/nix/store/changed-system"
 	// Reuse must authenticate with the key, without needing the password again.
 	t.Setenv("NIX_DARWIN_VM_TEST_REJECT_PASSWORD", "1")
 	s = startTestVM(t, config)
@@ -109,6 +113,9 @@ func TestCreateAndReuseVM(t *testing.T) {
 	}
 	if vm.Creations != 1 || vm.Runs != 2 || vm.Cores != 4 || !vm.Graphics || vm.Password != password {
 		t.Fatalf("unexpected reused VM: %+v", vm)
+	}
+	if vm.Copies != 2 || vm.CopiedSystem != config.System {
+		t.Fatalf("latest guest configuration was not copied once: %+v", vm)
 	}
 	contents, err := os.ReadFile(disk)
 	if err != nil || string(contents) != "guest changes" {

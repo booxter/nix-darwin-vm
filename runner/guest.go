@@ -22,6 +22,7 @@ type guest struct {
 	user         string
 	imageVersion string
 	installer    nixInstaller
+	system       string
 	address      string
 	password     string
 	signer       ssh.Signer
@@ -35,6 +36,7 @@ func newGuest(config configuration, dialer sshDialer) guest {
 		user:         config.BootstrapUser,
 		imageVersion: config.MacOSVersion,
 		installer:    config.NixInstaller,
+		system:       config.System,
 		dialer:       dialer,
 	}
 }

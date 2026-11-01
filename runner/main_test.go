@@ -38,6 +38,7 @@ func TestLoadConfiguration(t *testing.T) {
 		"graphics": false,
 		"ipsw": "/nix/store/example.ipsw",
 		"nixInstaller": {"type": "nix", "version": "2.35.4", "path": "/nix/store/installer.tar.xz"},
+		"system": "/nix/store/example-system",
 		"stateDirectory": "/tmp/guest-vm"
 	}`)
 
@@ -54,6 +55,7 @@ func TestLoadConfiguration(t *testing.T) {
 		Graphics:       false,
 		IPSW:           "/nix/store/example.ipsw",
 		NixInstaller:   nixInstaller{Type: "nix", Version: "2.35.4", Path: "/nix/store/installer.tar.xz"},
+		System:         "/nix/store/example-system",
 		StateDirectory: "/tmp/guest-vm",
 	}
 	if got != want {
@@ -73,6 +75,7 @@ func TestRelativeStateDirectory(t *testing.T) {
 		"cores": 4,
 		"memorySize": 4096,
 		"ipsw": "/nix/store/example.ipsw",
+		"system": "/nix/store/example-system",
 		"nixInstaller": {"type": "nix", "version": "2.35.4", "path": "/nix/store/installer.tar.xz"},
 		"stateDirectory": "./guest state"
 	}`)

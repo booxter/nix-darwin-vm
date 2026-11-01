@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -24,12 +25,15 @@ import (
 )
 
 type sshTestServer struct {
-	listener   net.Listener
-	config     *ssh.ServerConfig
-	directory  string
-	active     sync.Map
-	workers    sync.WaitGroup
-	nixPending atomic.Bool
+	listener       net.Listener
+	config         *ssh.ServerConfig
+	directory      string
+	active         sync.Map
+	workers        sync.WaitGroup
+	nixPending     atomic.Bool
+	storeDirectory string
+	storeBytes     atomic.Int64
+	storeBlocked   atomic.Bool
 }
 
 func newSSHTestServer(t *testing.T, directory string) *sshTestServer {
@@ -185,17 +189,96 @@ func (s *sshTestServer) serveSession(channel ssh.Channel, requests <-chan *ssh.R
 			}
 		case stageNixInstallerScript, installNixScript:
 			status = s.runScript(channel, payload.Command)
+		case configureCopyScript:
+			if err := s.authorizeCopy(channel); err != nil {
+				fmt.Fprintln(channel.Stderr(), err)
+				status = 1
+			}
+		case retainSystemScript:
+			if err := s.retainSystem(channel); err != nil {
+				fmt.Fprintln(channel.Stderr(), err)
+				status = 1
+			}
 		case installPublicKey:
 			if err := s.installKey(channel); err != nil {
 				status = 1
 			}
 		default:
-			fmt.Fprintln(channel.Stderr(), "unsupported fixture command")
-			status = 127
+			if s.storeDirectory != "" && strings.HasPrefix(payload.Command, "/nix/var/nix/profiles/default/bin/nix-daemon --stdio") {
+				status = s.serveStore(channel)
+			} else {
+				fmt.Fprintln(channel.Stderr(), "unsupported fixture command")
+				status = 127
+			}
 		}
 		channel.SendRequest("exit-status", false, ssh.Marshal(struct{ Status uint32 }{status}))
 		return
 	}
+}
+
+func (s *sshTestServer) authorizeCopy(reader io.Reader) error {
+	password, err := io.ReadAll(reader)
+	if err != nil {
+		return err
+	}
+	vm, err := readFakeVM(s.directory)
+	if err != nil {
+		return err
+	}
+	if strings.TrimSuffix(string(password), "\n") != vm.Password || os.Getenv("NIX_DARWIN_VM_TEST_FAIL") == "copy-trust" {
+		return errors.New("closure import authorization failed")
+	}
+	vm.CopyTrusted = true
+	return saveFakeVM(s.directory, vm)
+}
+
+func (s *sshTestServer) retainSystem(reader io.Reader) error {
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return err
+	}
+	if os.Getenv("NIX_DARWIN_VM_TEST_FAIL") == "retain" {
+		return errors.New("fixture profile update failed")
+	}
+	system := strings.TrimSpace(string(data))
+	if s.storeDirectory != "" {
+		command := exec.Command("nix-env", "--option", "post-build-hook", "",
+			"--store", localStoreURI(s.storeDirectory),
+			"--profile", filepath.Join(s.directory, "copied-profile"), "--set", system)
+		if output, err := command.CombinedOutput(); err != nil {
+			return fmt.Errorf("set fixture profile: %w: %s", err, output)
+		}
+	}
+	vm, err := readFakeVM(s.directory)
+	if err != nil {
+		return err
+	}
+	vm.CopiedSystem = system
+	return saveFakeVM(s.directory, vm)
+}
+
+type countedReader struct {
+	reader io.Reader
+	bytes  *atomic.Int64
+}
+
+func (r countedReader) Read(data []byte) (int, error) {
+	n, err := r.reader.Read(data)
+	r.bytes.Add(int64(n))
+	return n, err
+}
+
+func (s *sshTestServer) serveStore(channel ssh.Channel) uint32 {
+	input := countedReader{reader: channel, bytes: &s.storeBytes}
+	if s.storeBlocked.Load() {
+		io.Copy(io.Discard, input)
+		return 1
+	}
+	command := exec.Command("nix-daemon", "--stdio", "--store", localStoreURI(s.storeDirectory))
+	command.Stdin = input
+	command.Stdout = channel
+	command.Stderr = channel.Stderr()
+	return uint32(helperExitCode(command.Run()))
 }
 
 func (s *sshTestServer) runScript(channel ssh.Channel, script string) uint32 {

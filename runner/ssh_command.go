@@ -82,7 +82,19 @@ func guestSSHCommand(ctx context.Context, stateDirectory string, args []string, 
 		return nil, err
 	}
 
-	options := []string{
+	options := append(sshOptions(), "-l", string(username), ip.String())
+	command := exec.Command("ssh", append(options, args...)...)
+	if command.Err != nil {
+		return nil, command.Err
+	}
+
+	// Fixed relative filenames avoid OpenSSH path expansion and quoting rules.
+	command.Dir = credentials
+	return command, nil
+}
+
+func sshOptions() []string {
+	return []string{
 		"-F", "/dev/null",
 		"-i", "ssh_key",
 		"-o", "IdentityAgent=none",
@@ -97,18 +109,7 @@ func guestSSHCommand(ctx context.Context, stateDirectory string, args []string, 
 		"-o", "ConnectionAttempts=1",
 		"-o", "ServerAliveInterval=5",
 		"-o", "ServerAliveCountMax=1",
-		"-l", string(username),
-		ip.String(),
 	}
-
-	command := exec.Command("ssh", append(options, args...)...)
-	if command.Err != nil {
-		return nil, command.Err
-	}
-
-	// Fixed relative filenames avoid OpenSSH path expansion and quoting rules.
-	command.Dir = credentials
-	return command, nil
 }
 
 func replaceWithSSH(command *exec.Cmd) error {

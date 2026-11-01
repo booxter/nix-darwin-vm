@@ -202,6 +202,13 @@ func (t tart) runGuest(ctx context.Context, args []string, g guest) error {
 		fmt.Fprintln(t.stdout, "Preparing guest Nix")
 		facts, readyError = g.ensureNix(session)
 	}
+	if readyError == nil {
+		readyError = g.prepareCopy(session)
+	}
+	if readyError == nil {
+		fmt.Fprintln(t.stdout, "Copying guest configuration")
+		readyError = g.copySystem(session, t.stdout, t.stderr)
+	}
 	if readyError != nil {
 		cancel()
 		runError := <-exited
@@ -217,7 +224,7 @@ func (t tart) runGuest(ctx context.Context, args []string, g guest) error {
 		return readyError
 	}
 	fmt.Fprintf(t.stdout, "Guest macOS %s; Nix %s\n", facts.MacOSVersion, facts.NixVersion)
-	fmt.Fprintln(t.stdout, "Ready: SSH and Nix are available")
+	fmt.Fprintln(t.stdout, "Ready: guest configuration copied")
 	if err := <-exited; err != nil {
 		return fmt.Errorf("run VM: %w", err)
 	}
