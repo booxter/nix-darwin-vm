@@ -26,7 +26,15 @@
       };
       checks.aarch64-darwin.runner = pkgs.callPackage ./runner { };
 
-      formatter.aarch64-darwin = pkgs.nixfmt-tree;
+      formatter.aarch64-darwin = pkgs.nixfmt-tree.override {
+        runtimeInputs = [ pkgs.go ];
+
+        settings.formatter.gofmt = {
+          command = "gofmt";
+          options = [ "-w" ];
+          includes = [ "*.go" ];
+        };
+      };
 
       devShells.aarch64-darwin.default = pkgs.mkShell {
         packages = [ pkgs.go ];
