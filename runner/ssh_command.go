@@ -11,6 +11,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"syscall"
+	"time"
 )
 
 func sshMain(args []string, stderr io.Writer) int {
@@ -82,15 +83,25 @@ func guestSSHCommand(ctx context.Context, stateDirectory string, args []string, 
 		return nil, err
 	}
 
-	options := append(sshOptions(), "-l", string(username), ip.String())
-	command := exec.Command("ssh", append(options, args...)...)
+	options := append([]string{"-l", string(username), ip.String()}, args...)
+	command := sshCommand(ctx, credentials, options...)
 	if command.Err != nil {
 		return nil, command.Err
 	}
 
+	return command, nil
+}
+
+func sshCommand(ctx context.Context, credentials string, args ...string) *exec.Cmd {
+	command := exec.CommandContext(ctx, "ssh", append(sshOptions(), args...)...)
 	// Fixed relative filenames avoid OpenSSH path expansion and quoting rules.
 	command.Dir = credentials
-	return command, nil
+	// Give OpenSSH a chance to restore the terminal before forcing it to exit.
+	command.Cancel = func() error {
+		return command.Process.Signal(syscall.SIGTERM)
+	}
+	command.WaitDelay = 5 * time.Second
+	return command
 }
 
 func sshOptions() []string {

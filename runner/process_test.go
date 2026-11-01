@@ -44,6 +44,9 @@ type fakeVM struct {
 
 func TestMain(m *testing.M) {
 	if os.Getenv("NIX_DARWIN_VM_TEST_HELPER") == "1" {
+		if len(os.Args) > 1 && os.Args[1] == "interactive-fixture" {
+			os.Exit(runInteractiveFixture())
+		}
 		switch filepath.Base(os.Args[0]) {
 		case "tart":
 			os.Exit(fakeTart())
@@ -208,7 +211,7 @@ type vmFixture struct {
 }
 
 func (f vmFixture) run(ctx context.Context, stdout, stderr io.Writer) error {
-	return runVM(ctx, f.configuration, stdout, stderr, f.dialer)
+	return runVM(ctx, f.configuration, stdout, stderr, f.dialer, nil)
 }
 
 func fakeCommands(t *testing.T) {

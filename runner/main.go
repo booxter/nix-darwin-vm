@@ -13,6 +13,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"syscall"
+
+	"golang.org/x/term"
 )
 
 type configuration struct {
@@ -82,6 +84,7 @@ func run(args []string, stderr io.Writer) int {
 	flags := flag.NewFlagSet("runner", flag.ContinueOnError)
 	flags.SetOutput(stderr)
 	path := flags.String("config", "", "path to the VM configuration JSON file")
+	interactive := flags.Bool("interactive", false, "open a guest shell after activation; Enter reconnects after logout")
 
 	if err := flags.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
@@ -104,10 +107,18 @@ func run(args []string, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "runner:", err)
 		return 1
 	}
+	var input *os.File
+	if *interactive {
+		if !term.IsTerminal(int(os.Stdin.Fd())) || !term.IsTerminal(int(os.Stdout.Fd())) {
+			fmt.Fprintln(stderr, "runner: --interactive requires a terminal on stdin and stdout")
+			return 2
+		}
+		input = os.Stdin
+	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 	defer stop()
-	if err := runVM(ctx, config, os.Stdout, stderr, &net.Dialer{}); err != nil {
+	if err := runVM(ctx, config, os.Stdout, stderr, &net.Dialer{}, input); err != nil {
 		fmt.Fprintln(stderr, "runner:", err)
 		if ctx.Err() != nil {
 			return 130

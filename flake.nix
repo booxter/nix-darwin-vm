@@ -57,6 +57,7 @@
           pkgs.go
           pkgs.nix
           pkgs.openssh
+          pkgs.unixtools.script
           pkgs.xz
         ];
       };

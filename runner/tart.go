@@ -46,7 +46,6 @@ func (w lockedWriter) Write(data []byte) (int, error) {
 func (t tart) command(ctx context.Context, args ...string) *exec.Cmd {
 	command := exec.CommandContext(ctx, "tart", args...)
 	command.Env = append(os.Environ(), "TART_HOME="+t.home)
-	command.Stdin = os.Stdin
 	command.Stdout = t.stdout
 	command.Stderr = t.stderr
 
@@ -118,7 +117,7 @@ func lockStateDirectory(directory string) (*os.File, error) {
 	return lock, nil
 }
 
-func runVM(ctx context.Context, config configuration, stdout, stderr io.Writer, dialer sshDialer) error {
+func runVM(ctx context.Context, config configuration, stdout, stderr io.Writer, dialer sshDialer, input *os.File) error {
 	// Tart streams output while the runner reports guest preparation progress.
 	// Share the lock because callers may use the same writer for both streams.
 	var outputMutex sync.Mutex
@@ -180,10 +179,10 @@ func runVM(ctx context.Context, config configuration, stdout, stderr io.Writer, 
 	}
 	args = append(args, vmName)
 	fmt.Fprintf(stdout, "Starting %s; VM state is in %s\n", config.Name, config.StateDirectory)
-	return t.runGuest(ctx, args, g)
+	return t.runGuest(ctx, args, g, input)
 }
 
-func (t tart) runGuest(ctx context.Context, args []string, g guest) error {
+func (t tart) runGuest(ctx context.Context, args []string, g guest, input *os.File) error {
 	session, cancel := context.WithCancel(ctx)
 	defer cancel()
 	command := t.command(session, args...)
@@ -196,29 +195,7 @@ func (t tart) runGuest(ctx context.Context, args []string, g guest) error {
 		cancel()
 	}()
 
-	readyError := g.waitReady(session, t)
-	var facts systemFacts
-	if readyError == nil {
-		fmt.Fprintln(t.stdout, "Preparing guest Nix")
-		facts, readyError = g.ensureNix(session)
-	}
-	if readyError == nil {
-		readyError = g.prepareCopy(session)
-	}
-	if readyError == nil {
-		fmt.Fprintln(t.stdout, "Copying guest configuration")
-		readyError = g.copySystem(session, t.stdout, t.stderr)
-	}
-	if readyError == nil {
-		fmt.Fprintln(t.stdout, "Activating guest configuration")
-		readyError = g.activateSystem(session, t.stdout, t.stderr)
-	}
-	if readyError == nil {
-		readyError = g.waitReady(session, t)
-	}
-	if readyError == nil {
-		facts, readyError = g.verifySystem(session)
-	}
+	facts, readyError := t.prepareGuest(session, &g)
 	if readyError != nil {
 		cancel()
 		runError := <-exited
@@ -235,10 +212,47 @@ func (t tart) runGuest(ctx context.Context, args []string, g guest) error {
 	}
 	fmt.Fprintf(t.stdout, "Guest macOS %s; Nix %s\n", facts.MacOSVersion, facts.NixVersion)
 	fmt.Fprintln(t.stdout, "Ready: guest configuration activated")
-	if err := <-exited; err != nil {
-		return fmt.Errorf("run VM: %w", err)
+	var interactionError error
+	if input != nil {
+		interactionError = g.interact(session, input, t.stdout, t.stderr)
+		cancel()
+	}
+	runError := <-exited
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+	if interactionError != nil && !errors.Is(interactionError, context.Canceled) {
+		return interactionError
+	}
+	if runError != nil && !(input != nil && errors.Is(runError, context.Canceled)) {
+		return fmt.Errorf("run VM: %w", runError)
 	}
 	return nil
+}
+
+func (t tart) prepareGuest(ctx context.Context, g *guest) (systemFacts, error) {
+	if err := g.waitReady(ctx, t); err != nil {
+		return systemFacts{}, err
+	}
+	fmt.Fprintln(t.stdout, "Preparing guest Nix")
+	if _, err := g.ensureNix(ctx); err != nil {
+		return systemFacts{}, err
+	}
+	if err := g.prepareCopy(ctx); err != nil {
+		return systemFacts{}, err
+	}
+	fmt.Fprintln(t.stdout, "Copying guest configuration")
+	if err := g.copySystem(ctx, t.stdout, t.stderr); err != nil {
+		return systemFacts{}, err
+	}
+	fmt.Fprintln(t.stdout, "Activating guest configuration")
+	if err := g.activateSystem(ctx, t.stdout, t.stderr); err != nil {
+		return systemFacts{}, err
+	}
+	if err := g.waitReady(ctx, t); err != nil {
+		return systemFacts{}, err
+	}
+	return g.verifySystem(ctx)
 }
 
 func exitCode(err error) int {

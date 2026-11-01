@@ -31,6 +31,11 @@ Start the VM:
 nix run .#darwinConfigurations.example.config.system.build.vm
 ```
 
+Add `-- --interactive` to attach a guest shell in the same terminal after
+activation. Logging out leaves the VM running; press Enter to reconnect, or
+Ctrl-C or Ctrl-D at the reconnect prompt to stop the VM. Interactive mode is
+independent of `graphics` and requires a terminal. Omit it for CI.
+
 The first build downloads the selected Apple IPSW and Nix installer. The first
 run creates a 50 GB guest disk, creates the `bootstrapUser` administrator account
 (default `vmadmin`), and installs Nix for all users.
@@ -63,8 +68,9 @@ Choose a fresh state directory to change `bootstrapUser`, `macosVersion`, or the
 bootstrap Nix installer. After activation, the configuration's `nix.package`
 controls Nix when `nix.enable` is enabled. Audio and clipboard sharing are disabled.
 
-Ctrl-C stops the VM and retains its state. Use macOS's Shut Down command inside
-the guest for a clean shutdown.
+Ctrl-C stops the VM during startup or at the reconnect prompt and retains its
+state. Inside an attached shell, Ctrl-C goes to the guest. Use macOS's Shut Down
+command inside the guest for a clean shutdown.
 
 The [image inventory guide](images/README.md) describes the pinned IPSWs and their
 updater. The [installer inventory guide](installers/README.md) describes Nix

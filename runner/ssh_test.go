@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"crypto/ecdsa"
@@ -146,6 +147,15 @@ func (s *sshTestServer) serve(connection net.Conn) {
 func (s *sshTestServer) serveSession(channel ssh.Channel, requests <-chan *ssh.Request) {
 	defer channel.Close()
 	for request := range requests {
+		if request.Type == "pty-req" || request.Type == "window-change" {
+			request.Reply(true, nil)
+			continue
+		}
+		if request.Type == "shell" {
+			request.Reply(true, nil)
+			s.serveShell(channel)
+			return
+		}
 		if request.Type != "exec" {
 			request.Reply(false, nil)
 			continue
@@ -225,6 +235,35 @@ func (s *sshTestServer) serveSession(channel ssh.Channel, requests <-chan *ssh.R
 		}
 		channel.SendRequest("exit-status", false, ssh.Marshal(struct{ Status uint32 }{status}))
 		return
+	}
+}
+
+func (s *sshTestServer) serveShell(channel ssh.Channel) {
+	fmt.Fprintln(channel, "guest shell ready")
+	reader := bufio.NewReader(channel)
+	var line strings.Builder
+	for {
+		character, err := reader.ReadByte()
+		if err != nil {
+			return
+		}
+		switch character {
+		case 3:
+			fmt.Fprintln(channel, "guest received Ctrl-C")
+			line.Reset()
+		case '\n', '\r':
+			if line.String() == "exit" || line.String() == "exit 23" {
+				var status uint32
+				if line.String() == "exit 23" {
+					status = 23
+				}
+				channel.SendRequest("exit-status", false, ssh.Marshal(struct{ Status uint32 }{status}))
+				return
+			}
+			line.Reset()
+		default:
+			line.WriteByte(character)
+		}
 	}
 }
 
