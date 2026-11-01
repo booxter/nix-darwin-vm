@@ -7,20 +7,26 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"regexp"
 	"syscall"
 )
 
 type configuration struct {
 	Name           string `json:"name"`
+	BootstrapUser  string `json:"bootstrapUser"`
 	Cores          int    `json:"cores"`
 	MemorySize     int    `json:"memorySize"`
+	MacOSVersion   string `json:"macosVersion"`
 	Graphics       bool   `json:"graphics"`
 	IPSW           string `json:"ipsw"`
 	StateDirectory string `json:"stateDirectory"`
 }
+
+var bootstrapUserPattern = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_.-]*$`)
 
 func loadConfiguration(path string) (configuration, error) {
 	var config configuration
@@ -49,6 +55,9 @@ func loadConfiguration(path string) (configuration, error) {
 	if config.StateDirectory == "" {
 		return config, errors.New("stateDirectory is required")
 	}
+	if !bootstrapUserPattern.MatchString(config.BootstrapUser) {
+		return config, errors.New("bootstrapUser must be a nonempty account name containing letters, digits, underscores, periods, or hyphens, starting with a letter or underscore")
+	}
 
 	config.StateDirectory, err = filepath.Abs(config.StateDirectory)
 	if err != nil {
@@ -59,6 +68,9 @@ func loadConfiguration(path string) (configuration, error) {
 }
 
 func run(args []string, stderr io.Writer) int {
+	if len(args) > 0 && args[0] == "ssh" {
+		return sshMain(args[1:], stderr)
+	}
 	flags := flag.NewFlagSet("runner", flag.ContinueOnError)
 	flags.SetOutput(stderr)
 	path := flags.String("config", "", "path to the VM configuration JSON file")
@@ -87,7 +99,7 @@ func run(args []string, stderr io.Writer) int {
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 	defer stop()
-	if err := runVM(ctx, config, os.Stdout, stderr); err != nil {
+	if err := runVM(ctx, config, os.Stdout, stderr, &net.Dialer{}); err != nil {
 		fmt.Fprintln(stderr, "runner:", err)
 		if ctx.Err() != nil {
 			return 130

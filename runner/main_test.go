@@ -31,8 +31,10 @@ func checkRun(t *testing.T, args []string, wantCode int, wantMessage string) {
 func TestLoadConfiguration(t *testing.T) {
 	path := writeConfiguration(t, `{
 		"name": "guest",
+		"bootstrapUser": "builder",
 		"cores": 2,
 		"memorySize": 8192,
+		"macosVersion": "27.2",
 		"graphics": false,
 		"ipsw": "/nix/store/example.ipsw",
 		"stateDirectory": "/tmp/guest-vm"
@@ -44,8 +46,10 @@ func TestLoadConfiguration(t *testing.T) {
 	}
 	want := configuration{
 		Name:           "guest",
+		BootstrapUser:  "builder",
 		Cores:          2,
 		MemorySize:     8192,
+		MacOSVersion:   "27.2",
 		Graphics:       false,
 		IPSW:           "/nix/store/example.ipsw",
 		StateDirectory: "/tmp/guest-vm",
@@ -63,6 +67,7 @@ func TestRelativeStateDirectory(t *testing.T) {
 	}
 	path := writeConfiguration(t, `{
 		"name": "guest",
+		"bootstrapUser": "builder",
 		"cores": 4,
 		"memorySize": 4096,
 		"ipsw": "/nix/store/example.ipsw",
@@ -153,6 +158,11 @@ func TestRunRejectsInvalidConfiguration(t *testing.T) {
 			name:     "missing state directory",
 			contents: `{"name": "guest", "cores": 4, "memorySize": 4096, "ipsw": "/nix/store/example.ipsw"}`,
 			message:  "stateDirectory is required",
+		},
+		{
+			name:     "invalid bootstrap user",
+			contents: `{"name":"guest","cores":4,"memorySize":4096,"ipsw":"example.ipsw","stateDirectory":"./vm","bootstrapUser":"user,enablesRemoteLogin=false"}`,
+			message:  "bootstrapUser must be",
 		},
 	}
 

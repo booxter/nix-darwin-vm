@@ -1,14 +1,16 @@
 # nix-darwin-vm
 
 Import `darwinModules.vm` into a nix-darwin configuration to expose
-`config.system.build.vm`. The runner currently creates and starts bare macOS;
-guest provisioning, Nix installation, and nix-darwin activation are future work.
+`config.system.build.vm` and `config.system.build.vmSsh` for starting and
+connecting to a macOS VM. Nix installation and nix-darwin activation are not yet
+supported.
 
-Configure the VM variant with ordinary nix-darwin settings:
+Configure the VM variant:
 
 ```nix
 virtualisation.vmVariant.virtualisation = {
   macosVersion = "27.2";
+  bootstrapUser = "vmadmin";
   stateDirectory = "./example-vm";
   cores = 4;
   memorySize = 4096;
@@ -23,26 +25,38 @@ policy, for example:
 nixpkgs.config.allowUnfreePredicate = package: lib.getName package == "tart";
 ```
 
-On a compatible Apple silicon Mac, run the launcher:
+An Apple silicon Mac and macOS 27 or newer on both host and guest are required.
+Start the VM:
 
 ```sh
 nix run .#darwinConfigurations.example.config.system.build.vm
 ```
 
-The first build downloads and verifies the selected Apple IPSW. The first run
-restores macOS into a 50 GB disk and boots to Setup Assistant. Later runs reuse
-the disk and update its CPU and memory settings. Changing `macosVersion` does
-not reinstall an existing VM; choose a new state directory for a fresh install.
+The first build downloads the selected Apple IPSW. The first run creates a
+50 GB guest disk and the `bootstrapUser` administrator account (default `vmadmin`).
+Wait for the readiness message, then connect from another terminal:
 
-State defaults to `./<hostname>-vm`, relative to the launcher's working directory.
-The runner uses this directory as `TART_HOME` and names its VM `vm`. Concurrent
-runner sessions using the same directory are rejected. Audio and clipboard
-sharing are disabled.
+```sh
+nix run .#darwinConfigurations.example.config.system.build.vmSsh
 
-Ctrl-C, SIGTERM, and SIGHUP interrupt Tart and wait for it to exit, with a forced
-stop after ten seconds if needed. The disk is retained. This stops the VM; use
-macOS's Shut Down command inside the guest for a clean guest shutdown.
+# Run a command in the guest:
+nix run .#darwinConfigurations.example.config.system.build.vmSsh -- uname -a
+```
+
+`vmSsh` requires a running VM. It uses the VM's dedicated SSH key and does not
+use your SSH configuration or agent.
+
+State defaults to `./<hostname>-vm`, relative to the working directory. Run both
+launchers from the same directory when using a relative state path. Account
+credentials and SSH keys are stored in `<stateDirectory>/credentials`; use
+`credentials/password` for guest login and sudo. Keep this directory private.
+
+Later runs reuse the disk and credentials and apply CPU and memory settings.
+Choose a fresh state directory to change `bootstrapUser` or install a different
+`macosVersion`. Audio and clipboard sharing are disabled.
+
+Ctrl-C stops the VM and retains its state. Use macOS's Shut Down command inside
+the guest for a clean shutdown.
 
 The [image inventory guide](images/README.md) describes the pinned IPSWs and their
-updater. Run `nix fmt -- --ci` and `nix flake check` for formatting and offline
-tests. The subprocess tests do not start real VMs.
+updater. Run `nix fmt -- --ci` and `nix flake check` for formatting and tests.

@@ -19,6 +19,7 @@ in
 
   config = {
     system.build.vm = lib.mkDefault config.virtualisation.vmVariant.system.build.vm;
+    system.build.vmSsh = lib.mkDefault config.virtualisation.vmVariant.system.build.vmSsh;
 
     virtualisation.vmVariant.options.virtualisation.vmVariant = lib.mkOption {
       apply = _: throw "Nested virtualisation.vmVariant is not supported";

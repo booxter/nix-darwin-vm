@@ -11,6 +11,8 @@ let
   configuration = (pkgs.formats.json { }).generate "vm-config.json" {
     name = config.networking.hostName;
     inherit (config.virtualisation)
+      macosVersion
+      bootstrapUser
       cores
       memorySize
       graphics
@@ -21,6 +23,15 @@ let
 in
 {
   options.virtualisation = {
+    bootstrapUser = lib.mkOption {
+      type = lib.types.strMatching "[a-zA-Z_][a-zA-Z0-9_.-]*";
+      default = "vmadmin";
+      description = ''
+        Administrator account created on the guest's first boot and used for
+        SSH provisioning. Changing it requires a fresh state directory.
+      '';
+    };
+
     macosVersion = lib.mkOption {
       type = lib.types.enum (builtins.attrNames images);
       default = "27.2";
@@ -66,6 +77,19 @@ in
       runtimeInputs = [ pkgs.tart ];
       text = ''
         exec ${lib.getExe runner} --config ${configuration} "$@"
+      '';
+    };
+
+    vmSsh = pkgs.writeShellApplication {
+      name = "ssh-${config.networking.hostName}-vm";
+      runtimeInputs = [
+        pkgs.tart
+        pkgs.openssh
+      ];
+      text = ''
+        exec ${lib.getExe runner} ssh \
+          --state-directory ${lib.escapeShellArg config.virtualisation.stateDirectory} \
+          -- "$@"
       '';
     };
   };

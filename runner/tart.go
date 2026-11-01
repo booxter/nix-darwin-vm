@@ -7,10 +7,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -22,6 +24,11 @@ type tart struct {
 	home   string
 	stdout io.Writer
 	stderr io.Writer
+}
+
+type tartVM struct {
+	Name  string
+	State string
 }
 
 func (t tart) command(ctx context.Context, args ...string) *exec.Cmd {
@@ -41,30 +48,43 @@ func (t tart) command(ctx context.Context, args ...string) *exec.Cmd {
 	return command
 }
 
-func (t tart) inspectVM(ctx context.Context) (bool, error) {
+func (t tart) inspectVM(ctx context.Context) (*tartVM, error) {
 	var output bytes.Buffer
 	command := t.command(ctx, "list", "--source", "local", "--format", "json")
 	command.Stdout = &output
 	if err := command.Run(); err != nil {
-		return false, fmt.Errorf("list VMs: %w", err)
+		return nil, fmt.Errorf("list VMs: %w", err)
 	}
 
-	var machines []struct {
-		Name  string
-		State string
-	}
+	var machines []tartVM
 	if err := json.Unmarshal(output.Bytes(), &machines); err != nil {
-		return false, fmt.Errorf("decode Tart VM list: %w", err)
+		return nil, fmt.Errorf("decode Tart VM list: %w", err)
 	}
 	for _, machine := range machines {
 		if machine.Name != vmName {
-			return false, fmt.Errorf("state directory contains an unexpected VM: %s", machine.Name)
-		}
-		if machine.State != "stopped" {
-			return false, fmt.Errorf("VM is %s; stop it before starting another session", machine.State)
+			return nil, fmt.Errorf("state directory contains an unexpected VM: %s", machine.Name)
 		}
 	}
-	return len(machines) != 0, nil
+	if len(machines) == 0 {
+		return nil, nil
+	}
+	return &machines[0], nil
+}
+
+func (t tart) ip(ctx context.Context) (net.IP, error) {
+	var output bytes.Buffer
+	command := t.command(ctx, "ip", vmName)
+	command.Stdout = &output
+	command.Stderr = &output
+	if err := command.Run(); err != nil {
+		return nil, fmt.Errorf("resolve guest address: %w: %s", err, &output)
+	}
+	address := strings.TrimSpace(output.String())
+	ip := net.ParseIP(address)
+	if ip == nil {
+		return nil, &net.ParseError{Type: "guest IP address", Text: address}
+	}
+	return ip, nil
 }
 
 func lockStateDirectory(directory string) (*os.File, error) {
@@ -86,7 +106,15 @@ func lockStateDirectory(directory string) (*os.File, error) {
 	return lock, nil
 }
 
-func runVM(ctx context.Context, config configuration, stdout, stderr io.Writer) error {
+func runVM(ctx context.Context, config configuration, stdout, stderr io.Writer, dialer sshDialer) error {
+	host, err := inspectHost(ctx)
+	if err != nil {
+		return err
+	}
+	g := newGuest(config, dialer)
+	if err := g.checkProvisioningSupport(host); err != nil {
+		return err
+	}
 	lock, err := lockStateDirectory(config.StateDirectory)
 	if err != nil {
 		return err
@@ -94,8 +122,15 @@ func runVM(ctx context.Context, config configuration, stdout, stderr io.Writer) 
 	defer lock.Close()
 
 	t := tart{home: config.StateDirectory, stdout: stdout, stderr: stderr}
-	exists, err := t.inspectVM(ctx)
+	machine, err := t.inspectVM(ctx)
 	if err != nil {
+		return err
+	}
+	exists := machine != nil
+	if exists && machine.State != "stopped" {
+		return fmt.Errorf("VM is %s; stop it before starting another session", machine.State)
+	}
+	if err := g.prepare(exists); err != nil {
 		return err
 	}
 	if !exists {
@@ -115,9 +150,56 @@ func runVM(ctx context.Context, config configuration, stdout, stderr io.Writer) 
 	if !config.Graphics {
 		args = append(args, "--no-graphics")
 	}
+	if !g.configured {
+		options := []string{
+			"fullName=VM Administrator",
+			"username=" + g.user,
+			"password=" + g.password,
+			"logsInAutomatically=false",
+			"enablesRemoteLogin=true",
+		}
+		args = append(args, "--provisioning-opts="+strings.Join(options, ","))
+	}
 	args = append(args, vmName)
 	fmt.Fprintf(stdout, "Starting %s; VM state is in %s\n", config.Name, config.StateDirectory)
-	if err := t.command(ctx, args...).Run(); err != nil {
+	return t.runGuest(ctx, args, g)
+}
+
+func (t tart) runGuest(ctx context.Context, args []string, g guest) error {
+	session, cancel := context.WithCancel(ctx)
+	defer cancel()
+	command := t.command(session, args...)
+	if err := command.Start(); err != nil {
+		return fmt.Errorf("start Tart: %w", err)
+	}
+	exited := make(chan error, 1)
+	go func() {
+		exited <- command.Wait()
+		cancel()
+	}()
+
+	readyError := g.waitReady(session, t)
+	var facts systemFacts
+	if readyError == nil {
+		facts, readyError = g.inspect(session)
+	}
+	if readyError != nil {
+		cancel()
+		runError := <-exited
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		if runError != nil && !errors.Is(runError, context.Canceled) {
+			return fmt.Errorf("run VM: %w", runError)
+		}
+		if errors.Is(readyError, context.Canceled) {
+			return errors.New("VM exited before SSH became ready")
+		}
+		return readyError
+	}
+	fmt.Fprintf(t.stdout, "Guest macOS %s\n", facts.MacOSVersion)
+	fmt.Fprintln(t.stdout, "Ready: SSH is available")
+	if err := <-exited; err != nil {
 		return fmt.Errorf("run VM: %w", err)
 	}
 	return nil

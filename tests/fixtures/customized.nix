@@ -23,6 +23,7 @@
 
       virtualisation = {
         macosVersion = "26.6.2";
+        bootstrapUser = "builder";
         stateDirectory = "./custom vm";
         cores = 2;
         memorySize = 8192;

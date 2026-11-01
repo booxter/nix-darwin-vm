@@ -76,6 +76,7 @@ let
       expr = {
         inherit (minimal.config.virtualisation.vmVariant.virtualisation)
           macosVersion
+          bootstrapUser
           stateDirectory
           cores
           memorySize
@@ -84,6 +85,7 @@ let
       };
       expected = {
         macosVersion = "27.2";
+        bootstrapUser = "vmadmin";
         stateDirectory = "./minimal-vm";
         cores = 4;
         memorySize = 4096;
@@ -126,6 +128,7 @@ let
       expr = {
         inherit (guest.virtualisation)
           macosVersion
+          bootstrapUser
           stateDirectory
           cores
           memorySize
@@ -134,6 +137,7 @@ let
       };
       expected = {
         macosVersion = "26.6.2";
+        bootstrapUser = "builder";
         stateDirectory = "./custom vm";
         cores = 2;
         memorySize = 8192;
@@ -168,9 +172,19 @@ let
       expected = guest.system.build.vm.drvPath;
     };
 
+    testParentExposesVariantSSHLauncher = {
+      expr = parent.system.build.vmSsh.drvPath;
+      expected = guest.system.build.vmSsh.drvPath;
+    };
+
     testLauncherUsesVariantName = {
       expr = parent.system.build.vm.meta.mainProgram;
       expected = "run-guest-vm";
+    };
+
+    testSSHLauncherUsesVariantName = {
+      expr = parent.system.build.vmSsh.meta.mainProgram;
+      expected = "ssh-guest-vm";
     };
 
     testNestedVariantIsRejected = {
@@ -185,5 +199,16 @@ else
   pkgs.runCommand "vm-module-interface" { } ''
     ${lib.getExe (withFixtureIPSW minimal).config.system.build.vm} --help
     ${lib.getExe (withFixtureIPSW customized).config.system.build.vm} --help
+    for launcher in \
+      ${lib.getExe minimal.config.system.build.vmSsh} \
+      ${lib.getExe customized.config.system.build.vmSsh}; do
+      if "$launcher" true >ssh-output 2>&1; then
+        echo "SSH launcher unexpectedly connected without VM state" >&2
+        exit 1
+      fi
+      grep -Fq "VM is not prepared" ssh-output
+    done
+    test ! -e minimal-vm
+    test ! -e 'custom vm'
     touch "$out"
   ''
