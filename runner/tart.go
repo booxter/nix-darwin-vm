@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 )
@@ -29,6 +30,17 @@ type tart struct {
 type tartVM struct {
 	Name  string
 	State string
+}
+
+type lockedWriter struct {
+	mutex  *sync.Mutex
+	writer io.Writer
+}
+
+func (w lockedWriter) Write(data []byte) (int, error) {
+	w.mutex.Lock()
+	defer w.mutex.Unlock()
+	return w.writer.Write(data)
 }
 
 func (t tart) command(ctx context.Context, args ...string) *exec.Cmd {
@@ -107,6 +119,12 @@ func lockStateDirectory(directory string) (*os.File, error) {
 }
 
 func runVM(ctx context.Context, config configuration, stdout, stderr io.Writer, dialer sshDialer) error {
+	// Tart streams output while the runner reports guest preparation progress.
+	// Share the lock because callers may use the same writer for both streams.
+	var outputMutex sync.Mutex
+	stdout = lockedWriter{mutex: &outputMutex, writer: stdout}
+	stderr = lockedWriter{mutex: &outputMutex, writer: stderr}
+
 	host, err := inspectHost(ctx)
 	if err != nil {
 		return err
@@ -181,7 +199,8 @@ func (t tart) runGuest(ctx context.Context, args []string, g guest) error {
 	readyError := g.waitReady(session, t)
 	var facts systemFacts
 	if readyError == nil {
-		facts, readyError = g.inspect(session)
+		fmt.Fprintln(t.stdout, "Preparing guest Nix")
+		facts, readyError = g.ensureNix(session)
 	}
 	if readyError != nil {
 		cancel()
@@ -193,12 +212,12 @@ func (t tart) runGuest(ctx context.Context, args []string, g guest) error {
 			return fmt.Errorf("run VM: %w", runError)
 		}
 		if errors.Is(readyError, context.Canceled) {
-			return errors.New("VM exited before SSH became ready")
+			return errors.New("VM exited before guest preparation completed")
 		}
 		return readyError
 	}
-	fmt.Fprintf(t.stdout, "Guest macOS %s\n", facts.MacOSVersion)
-	fmt.Fprintln(t.stdout, "Ready: SSH is available")
+	fmt.Fprintf(t.stdout, "Guest macOS %s; Nix %s\n", facts.MacOSVersion, facts.NixVersion)
+	fmt.Fprintln(t.stdout, "Ready: SSH and Nix are available")
 	if err := <-exited; err != nil {
 		return fmt.Errorf("run VM: %w", err)
 	}

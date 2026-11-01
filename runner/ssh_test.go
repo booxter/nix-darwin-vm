@@ -12,8 +12,10 @@ import (
 	"io"
 	"net"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -22,11 +24,12 @@ import (
 )
 
 type sshTestServer struct {
-	listener  net.Listener
-	config    *ssh.ServerConfig
-	directory string
-	active    sync.Map
-	workers   sync.WaitGroup
+	listener   net.Listener
+	config     *ssh.ServerConfig
+	directory  string
+	active     sync.Map
+	workers    sync.WaitGroup
+	nixPending atomic.Bool
 }
 
 func newSSHTestServer(t *testing.T, directory string) *sshTestServer {
@@ -165,14 +168,46 @@ func (s *sshTestServer) serveSession(channel ssh.Channel, requests <-chan *ssh.R
 			} else {
 				fmt.Fprintln(channel, vm.MacOSVersion)
 			}
-		default:
+		case queryNixVersion:
+			vm, err := readFakeVM(s.directory)
+			if err != nil {
+				status = 1
+			} else if vm.NixVersion != "" && !s.nixPending.Load() {
+				fmt.Fprintln(channel, "nix (Nix)", vm.NixVersion)
+			}
+		case waitNixScript:
+			for s.nixPending.Load() {
+				time.Sleep(10 * time.Millisecond)
+			}
+			vm, err := readFakeVM(s.directory)
+			if err != nil || (vm.NixVersion != "" && os.Getenv("NIX_DARWIN_VM_TEST_FAIL") == "nix-daemon") {
+				status = 1
+			}
+		case stageNixInstallerScript, installNixScript:
+			status = s.runScript(channel, payload.Command)
+		case installPublicKey:
 			if err := s.installKey(channel); err != nil {
 				status = 1
 			}
+		default:
+			fmt.Fprintln(channel.Stderr(), "unsupported fixture command")
+			status = 127
 		}
 		channel.SendRequest("exit-status", false, ssh.Marshal(struct{ Status uint32 }{status}))
 		return
 	}
+}
+
+func (s *sshTestServer) runScript(channel ssh.Channel, script string) uint32 {
+	command := exec.Command("/bin/sh", "-c", script)
+	command.Env = append(os.Environ(),
+		"NIX_DARWIN_VM_TEST_VM_STATE="+s.directory,
+		"TMPDIR="+s.directory,
+	)
+	command.Stdin = channel
+	command.Stdout = channel
+	command.Stderr = channel.Stderr()
+	return uint32(helperExitCode(command.Run()))
 }
 
 func (s *sshTestServer) installKey(reader io.Reader) error {
@@ -196,6 +231,7 @@ func (s *sshTestServer) installKey(reader io.Reader) error {
 
 func sshFixture(t *testing.T) (guest, *sshTestServer) {
 	t.Helper()
+	fakeCommands(t)
 	directory := t.TempDir()
 	s := newSSHTestServer(t, directory)
 	g := newGuest(configuration{StateDirectory: directory, BootstrapUser: "builder", MacOSVersion: "27.2"}, s)

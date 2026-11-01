@@ -16,14 +16,15 @@ import (
 )
 
 type configuration struct {
-	Name           string `json:"name"`
-	BootstrapUser  string `json:"bootstrapUser"`
-	Cores          int    `json:"cores"`
-	MemorySize     int    `json:"memorySize"`
-	MacOSVersion   string `json:"macosVersion"`
-	Graphics       bool   `json:"graphics"`
-	IPSW           string `json:"ipsw"`
-	StateDirectory string `json:"stateDirectory"`
+	Name           string       `json:"name"`
+	BootstrapUser  string       `json:"bootstrapUser"`
+	Cores          int          `json:"cores"`
+	MemorySize     int          `json:"memorySize"`
+	MacOSVersion   string       `json:"macosVersion"`
+	Graphics       bool         `json:"graphics"`
+	IPSW           string       `json:"ipsw"`
+	StateDirectory string       `json:"stateDirectory"`
+	NixInstaller   nixInstaller `json:"nixInstaller"`
 }
 
 var bootstrapUserPattern = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_.-]*$`)
@@ -57,6 +58,9 @@ func loadConfiguration(path string) (configuration, error) {
 	}
 	if !bootstrapUserPattern.MatchString(config.BootstrapUser) {
 		return config, errors.New("bootstrapUser must be a nonempty account name containing letters, digits, underscores, periods, or hyphens, starting with a letter or underscore")
+	}
+	if err := config.NixInstaller.validate(); err != nil {
+		return config, err
 	}
 
 	config.StateDirectory, err = filepath.Abs(config.StateDirectory)

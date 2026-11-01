@@ -37,6 +37,7 @@ func TestLoadConfiguration(t *testing.T) {
 		"macosVersion": "27.2",
 		"graphics": false,
 		"ipsw": "/nix/store/example.ipsw",
+		"nixInstaller": {"type": "nix", "version": "2.35.4", "path": "/nix/store/installer.tar.xz"},
 		"stateDirectory": "/tmp/guest-vm"
 	}`)
 
@@ -52,6 +53,7 @@ func TestLoadConfiguration(t *testing.T) {
 		MacOSVersion:   "27.2",
 		Graphics:       false,
 		IPSW:           "/nix/store/example.ipsw",
+		NixInstaller:   nixInstaller{Type: "nix", Version: "2.35.4", Path: "/nix/store/installer.tar.xz"},
 		StateDirectory: "/tmp/guest-vm",
 	}
 	if got != want {
@@ -71,6 +73,7 @@ func TestRelativeStateDirectory(t *testing.T) {
 		"cores": 4,
 		"memorySize": 4096,
 		"ipsw": "/nix/store/example.ipsw",
+		"nixInstaller": {"type": "nix", "version": "2.35.4", "path": "/nix/store/installer.tar.xz"},
 		"stateDirectory": "./guest state"
 	}`)
 
@@ -163,6 +166,24 @@ func TestRunRejectsInvalidConfiguration(t *testing.T) {
 			name:     "invalid bootstrap user",
 			contents: `{"name":"guest","cores":4,"memorySize":4096,"ipsw":"example.ipsw","stateDirectory":"./vm","bootstrapUser":"user,enablesRemoteLogin=false"}`,
 			message:  "bootstrapUser must be",
+		},
+		{
+			name: "unknown installer",
+			contents: `{"name":"guest","cores":4,"memorySize":4096,"ipsw":"example.ipsw","stateDirectory":"./vm","bootstrapUser":"builder",
+				"nixInstaller":{"type":"unknown","version":"2.35.4","path":"installer.tar.xz"}}`,
+			message: "unsupported nixInstaller.type",
+		},
+		{
+			name: "invalid installer version",
+			contents: `{"name":"guest","cores":4,"memorySize":4096,"ipsw":"example.ipsw","stateDirectory":"./vm","bootstrapUser":"builder",
+				"nixInstaller":{"type":"nix","version":"latest","path":"installer.tar.xz"}}`,
+			message: "invalid nixInstaller.version",
+		},
+		{
+			name: "missing installer path",
+			contents: `{"name":"guest","cores":4,"memorySize":4096,"ipsw":"example.ipsw","stateDirectory":"./vm","bootstrapUser":"builder",
+				"nixInstaller":{"type":"nix","version":"2.35.4"}}`,
+			message: "nixInstaller.path is required",
 		},
 	}
 

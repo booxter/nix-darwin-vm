@@ -14,6 +14,7 @@ import (
 
 type systemFacts struct {
 	MacOSVersion string
+	NixVersion   string
 }
 
 // Fact queries are fixed shell commands, interpreted locally or over SSH.
@@ -55,6 +56,17 @@ func (g guest) inspect(ctx context.Context) (systemFacts, error) {
 	facts, err := inspectSystem(ctx, execute)
 	if err != nil {
 		return systemFacts{}, fmt.Errorf("inspect guest: %w", err)
+	}
+	output, err := execute(ctx, queryNixVersion)
+	if err != nil {
+		return systemFacts{}, fmt.Errorf("inspect guest Nix: %w", err)
+	}
+	if version := strings.TrimSpace(string(output)); version != "" {
+		version, ok := strings.CutPrefix(version, "nix (Nix) ")
+		if !ok || !nixVersionPattern.MatchString(version) {
+			return systemFacts{}, fmt.Errorf("invalid guest Nix version %q", output)
+		}
+		facts.NixVersion = version
 	}
 	return facts, nil
 }

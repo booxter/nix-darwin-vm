@@ -16,7 +16,8 @@ pin `version` to keep that choice when updating this flake.
 
 The selected download is available as
 `virtualisation.vmVariant.system.build.nixInstaller`. Selecting an installer
-does not yet install Nix in the guest.
+installs that release in a fresh guest. Later runs reuse a matching installation;
+choose a fresh state directory to change versions.
 
 Update the inventory from the repository root:
 

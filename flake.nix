@@ -53,7 +53,10 @@
       };
 
       devShells.aarch64-darwin.default = pkgs.mkShell {
-        packages = [ pkgs.go ];
+        packages = [
+          pkgs.go
+          pkgs.xz
+        ];
       };
     };
 }

@@ -31,6 +31,7 @@ func TestInspectGuestReturnsFreshObservations(t *testing.T) {
 		t.Fatal(err)
 	}
 	vm.MacOSVersion = "27.3.1"
+	vm.NixVersion = "2.34.0"
 	if err := saveFakeVM(s.directory, vm); err != nil {
 		t.Fatal(err)
 	}
@@ -38,10 +39,11 @@ func TestInspectGuestReturnsFreshObservations(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if before.MacOSVersion != "27.3.1" {
+	if before.MacOSVersion != "27.3.1" || before.NixVersion != "2.34.0" {
 		t.Fatalf("guest inspection used the requested image version: %+v", before)
 	}
 	vm.MacOSVersion = "27.4"
+	vm.NixVersion = "2.35.4"
 	if err := saveFakeVM(s.directory, vm); err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +51,8 @@ func TestInspectGuestReturnsFreshObservations(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if after.MacOSVersion != "27.4" || before.MacOSVersion != "27.3.1" {
+	if after.MacOSVersion != "27.4" || before.MacOSVersion != "27.3.1" ||
+		after.NixVersion != "2.35.4" || before.NixVersion != "2.34.0" {
 		t.Fatalf("guest facts were cached or modified: before=%+v, after=%+v", before, after)
 	}
 }

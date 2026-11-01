@@ -23,6 +23,10 @@ let
       stateDirectory
       ;
     ipsw = config.system.build.ipsw;
+    nixInstaller = {
+      inherit (installer) type version;
+      path = config.system.build.nixInstaller;
+    };
   };
 in
 {

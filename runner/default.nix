@@ -2,6 +2,7 @@
   buildGoModule,
   lib,
   openssh,
+  xz,
 }:
 buildGoModule {
   pname = "nix-darwin-vm-runner";
@@ -9,7 +10,10 @@ buildGoModule {
   src = ./.;
   vendorHash = "sha256-coHCpgjyAarT1N2nJ63eXpv3doWTrORMq94YLhcQT3A=";
   __darwinAllowLocalNetworking = true;
-  nativeCheckInputs = [ openssh ];
+  nativeCheckInputs = [
+    openssh
+    xz
+  ];
 
   meta = {
     description = "Runner for nix-darwin virtual machines";

@@ -67,13 +67,16 @@ let
       inherit (installers.nix.${version}) url hash;
     };
 
-  withFixtureIPSW =
+  withFixtureInputs =
     configuration:
     configuration.extendModules {
       modules = [
         {
           virtualisation.vmVariant.system.build.ipsw = lib.mkForce (
             pkgs.writeText "fixture.ipsw" "test restore image"
+          );
+          virtualisation.vmVariant.system.build.nixInstaller = lib.mkForce (
+            pkgs.writeText "fixture.tar.xz" "test installer"
           );
         }
       ];
@@ -259,8 +262,8 @@ if failures != [ ] then
   throw "VM module interface tests failed: ${builtins.toJSON failures}"
 else
   pkgs.runCommand "vm-module-interface" { } ''
-    ${lib.getExe (withFixtureIPSW minimal).config.system.build.vm} --help
-    ${lib.getExe (withFixtureIPSW customized).config.system.build.vm} --help
+    ${lib.getExe (withFixtureInputs minimal).config.system.build.vm} --help
+    ${lib.getExe (withFixtureInputs customized).config.system.build.vm} --help
     for launcher in \
       ${lib.getExe minimal.config.system.build.vmSsh} \
       ${lib.getExe customized.config.system.build.vmSsh}; do
