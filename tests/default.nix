@@ -35,6 +35,13 @@ let
       }
     ];
   };
+  renamed = minimal.extendModules {
+    modules = [
+      {
+        virtualisation.vmVariant.networking.hostName = lib.mkForce "renamed";
+      }
+    ];
+  };
 
   expectedIPSW =
     version:
@@ -69,6 +76,7 @@ let
       expr = {
         inherit (minimal.config.virtualisation.vmVariant.virtualisation)
           macosVersion
+          stateDirectory
           cores
           memorySize
           graphics
@@ -76,6 +84,7 @@ let
       };
       expected = {
         macosVersion = "27.2";
+        stateDirectory = "./minimal-vm";
         cores = 4;
         memorySize = 4096;
         graphics = true;
@@ -117,6 +126,7 @@ let
       expr = {
         inherit (guest.virtualisation)
           macosVersion
+          stateDirectory
           cores
           memorySize
           graphics
@@ -124,10 +134,16 @@ let
       };
       expected = {
         macosVersion = "26.6.2";
+        stateDirectory = "./custom vm";
         cores = 2;
         memorySize = 8192;
         graphics = false;
       };
+    };
+
+    testStateDirectoryDefaultsToVariantName = {
+      expr = renamed.config.virtualisation.vmVariant.virtualisation.stateDirectory;
+      expected = "./renamed-vm";
     };
 
     testDefaultVersionSelectsPinnedImage = {

@@ -7,14 +7,16 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 )
 
 type configuration struct {
-	Name       string `json:"name"`
-	Cores      int    `json:"cores"`
-	MemorySize int    `json:"memorySize"`
-	Graphics   bool   `json:"graphics"`
-	IPSW       string `json:"ipsw"`
+	Name           string `json:"name"`
+	Cores          int    `json:"cores"`
+	MemorySize     int    `json:"memorySize"`
+	Graphics       bool   `json:"graphics"`
+	IPSW           string `json:"ipsw"`
+	StateDirectory string `json:"stateDirectory"`
 }
 
 func loadConfiguration(path string) (configuration, error) {
@@ -40,6 +42,14 @@ func loadConfiguration(path string) (configuration, error) {
 	}
 	if config.IPSW == "" {
 		return config, errors.New("IPSW path is required")
+	}
+	if config.StateDirectory == "" {
+		return config, errors.New("stateDirectory is required")
+	}
+
+	config.StateDirectory, err = filepath.Abs(config.StateDirectory)
+	if err != nil {
+		return config, fmt.Errorf("resolve state directory: %w", err)
 	}
 
 	return config, nil

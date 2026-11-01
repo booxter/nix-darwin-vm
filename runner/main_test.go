@@ -34,7 +34,8 @@ func TestLoadConfiguration(t *testing.T) {
 		"cores": 2,
 		"memorySize": 8192,
 		"graphics": false,
-		"ipsw": "/nix/store/example.ipsw"
+		"ipsw": "/nix/store/example.ipsw",
+		"stateDirectory": "/tmp/guest-vm"
 	}`)
 
 	got, err := loadConfiguration(path)
@@ -42,14 +43,39 @@ func TestLoadConfiguration(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := configuration{
-		Name:       "guest",
-		Cores:      2,
-		MemorySize: 8192,
-		Graphics:   false,
-		IPSW:       "/nix/store/example.ipsw",
+		Name:           "guest",
+		Cores:          2,
+		MemorySize:     8192,
+		Graphics:       false,
+		IPSW:           "/nix/store/example.ipsw",
+		StateDirectory: "/tmp/guest-vm",
 	}
 	if got != want {
 		t.Fatalf("got %+v, want %+v", got, want)
+	}
+}
+
+func TestRelativeStateDirectory(t *testing.T) {
+	t.Chdir(t.TempDir())
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := writeConfiguration(t, `{
+		"name": "guest",
+		"cores": 4,
+		"memorySize": 4096,
+		"ipsw": "/nix/store/example.ipsw",
+		"stateDirectory": "./guest state"
+	}`)
+
+	config, err := loadConfiguration(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := filepath.Join(workingDirectory, "guest state")
+	if config.StateDirectory != want {
+		t.Fatalf("state directory %q, want %q", config.StateDirectory, want)
 	}
 }
 
@@ -122,6 +148,11 @@ func TestRunRejectsInvalidConfiguration(t *testing.T) {
 			name:     "missing IPSW",
 			contents: `{"name": "guest", "cores": 4, "memorySize": 4096}`,
 			message:  "IPSW path is required",
+		},
+		{
+			name:     "missing state directory",
+			contents: `{"name": "guest", "cores": 4, "memorySize": 4096, "ipsw": "/nix/store/example.ipsw"}`,
+			message:  "stateDirectory is required",
 		},
 	}
 
