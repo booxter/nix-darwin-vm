@@ -75,4 +75,5 @@ command inside the guest for a clean shutdown.
 The [image inventory guide](images/README.md) describes the pinned IPSWs and their
 updater. The [installer inventory guide](installers/README.md) describes Nix
 installer selection. Run `nix fmt -- --ci` and `nix flake check` for formatting
-and tests.
+and fast tests. Run `nix run .#test-vm` for the opt-in
+[real VM integration scenarios](tests/README.md).

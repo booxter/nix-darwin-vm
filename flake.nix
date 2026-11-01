@@ -18,6 +18,10 @@
       pkgs = nixpkgs.legacyPackages.aarch64-darwin;
       updateImages = pkgs.callPackage ./scripts/update-images { };
       updateNixInstallers = pkgs.callPackage ./scripts/update-nix-installers { };
+      testVM = import ./tests/integration.nix {
+        inherit nix-darwin pkgs;
+        vmModule = self.darwinModules.vm;
+      };
     in
     {
       darwinModules.vm = import ./modules/vm.nix;
@@ -32,6 +36,12 @@
         type = "app";
         program = pkgs.lib.getExe updateNixInstallers;
         meta.description = "Update the Nix installer inventory";
+      };
+
+      apps.aarch64-darwin.test-vm = {
+        type = "app";
+        program = pkgs.lib.getExe testVM;
+        meta.description = "Run integration scenarios with real macOS Tart VMs";
       };
 
       checks.aarch64-darwin.module-interface = import ./tests {
