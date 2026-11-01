@@ -4,6 +4,13 @@
   pkgs,
   ...
 }:
+let
+  runner = pkgs.callPackage ../runner { };
+  configuration = (pkgs.formats.json { }).generate "vm-config.json" {
+    name = config.networking.hostName;
+    inherit (config.virtualisation) cores memorySize graphics;
+  };
+in
 {
   options.virtualisation = {
     cores = lib.mkOption {
@@ -28,8 +35,7 @@
   config.system.build.vm = pkgs.writeShellApplication {
     name = "run-${config.networking.hostName}-vm";
     text = ''
-      echo "The macOS VM runner is not implemented yet" >&2
-      exit 1
+      exec ${lib.getExe runner} --config ${configuration} "$@"
     '';
   };
 }

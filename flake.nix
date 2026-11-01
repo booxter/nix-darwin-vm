@@ -24,9 +24,12 @@
         inherit nix-darwin pkgs;
         vmModule = self.darwinModules.vm;
       };
+      checks.aarch64-darwin.runner = pkgs.callPackage ./runner { };
 
       formatter.aarch64-darwin = pkgs.nixfmt-tree;
 
-      devShells.aarch64-darwin.default = pkgs.mkShell { };
+      devShells.aarch64-darwin.default = pkgs.mkShell {
+        packages = [ pkgs.go ];
+      };
     };
 }

@@ -112,5 +112,7 @@ if failures != [ ] then
   throw "VM module interface tests failed: ${builtins.toJSON failures}"
 else
   pkgs.runCommand "vm-module-interface" { } ''
+    ${lib.getExe minimal.config.system.build.vm} --help
+    ${lib.getExe parent.system.build.vm} --help
     touch "$out"
   ''
