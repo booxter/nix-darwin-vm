@@ -5,6 +5,7 @@
 }:
 let
   inherit (pkgs) lib;
+  images = builtins.fromJSON (builtins.readFile ../images/macos.json);
 
   physical = nix-darwin.lib.darwinSystem {
     modules = [ ./fixtures/minimal.nix ];
@@ -27,6 +28,31 @@ let
       }
     ];
   };
+  unknownVersion = minimal.extendModules {
+    modules = [
+      {
+        virtualisation.vmVariant.virtualisation.macosVersion = "unknown";
+      }
+    ];
+  };
+
+  expectedIPSW =
+    version:
+    pkgs.fetchurl {
+      inherit (images.${version}) url hash;
+    };
+
+  withFixtureIPSW =
+    configuration:
+    configuration.extendModules {
+      modules = [
+        {
+          virtualisation.vmVariant.system.build.ipsw = lib.mkForce (
+            pkgs.writeText "fixture.ipsw" "test restore image"
+          );
+        }
+      ];
+    };
 
   failures = lib.runTests {
     testImportPreservesParentSystem = {
@@ -39,11 +65,17 @@ let
       expected = "minimal";
     };
 
-    testDefaultResources = {
+    testDefaultSettings = {
       expr = {
-        inherit (minimal.config.virtualisation.vmVariant.virtualisation) cores memorySize graphics;
+        inherit (minimal.config.virtualisation.vmVariant.virtualisation)
+          macosVersion
+          cores
+          memorySize
+          graphics
+          ;
       };
       expected = {
+        macosVersion = "27.2";
         cores = 4;
         memorySize = 4096;
         graphics = true;
@@ -81,15 +113,38 @@ let
       };
     };
 
-    testResourcesCanBeOverridden = {
+    testVariantSettingsCanBeOverridden = {
       expr = {
-        inherit (guest.virtualisation) cores memorySize graphics;
+        inherit (guest.virtualisation)
+          macosVersion
+          cores
+          memorySize
+          graphics
+          ;
       };
       expected = {
+        macosVersion = "26.6.2";
         cores = 2;
         memorySize = 8192;
         graphics = false;
       };
+    };
+
+    testDefaultVersionSelectsPinnedImage = {
+      expr = minimal.config.virtualisation.vmVariant.system.build.ipsw.outPath;
+      expected = (expectedIPSW "27.2").outPath;
+    };
+
+    testCustomVersionSelectsPinnedImage = {
+      expr = guest.system.build.ipsw.outPath;
+      expected = (expectedIPSW "26.6.2").outPath;
+    };
+
+    testUnknownVersionIsRejected = {
+      expr =
+        (builtins.tryEval unknownVersion.config.virtualisation.vmVariant.virtualisation.macosVersion)
+        .success;
+      expected = false;
     };
 
     testParentExposesVariantLauncher = {
@@ -112,7 +167,7 @@ if failures != [ ] then
   throw "VM module interface tests failed: ${builtins.toJSON failures}"
 else
   pkgs.runCommand "vm-module-interface" { } ''
-    ${lib.getExe minimal.config.system.build.vm} --help
-    ${lib.getExe parent.system.build.vm} --help
+    ${lib.getExe (withFixtureIPSW minimal).config.system.build.vm} --help
+    ${lib.getExe (withFixtureIPSW customized).config.system.build.vm} --help
     touch "$out"
   ''

@@ -5,14 +5,23 @@
   ...
 }:
 let
+  images = builtins.fromJSON (builtins.readFile ../images/macos.json);
+  image = images.${config.virtualisation.macosVersion};
   runner = pkgs.callPackage ../runner { };
   configuration = (pkgs.formats.json { }).generate "vm-config.json" {
     name = config.networking.hostName;
     inherit (config.virtualisation) cores memorySize graphics;
+    ipsw = config.system.build.ipsw;
   };
 in
 {
   options.virtualisation = {
+    macosVersion = lib.mkOption {
+      type = lib.types.enum (builtins.attrNames images);
+      default = "27.2";
+      description = "Exact macOS version of the Apple IPSW restore image to use.";
+    };
+
     cores = lib.mkOption {
       type = lib.types.ints.positive;
       default = 4;
@@ -32,10 +41,16 @@ in
     };
   };
 
-  config.system.build.vm = pkgs.writeShellApplication {
-    name = "run-${config.networking.hostName}-vm";
-    text = ''
-      exec ${lib.getExe runner} --config ${configuration} "$@"
-    '';
+  config.system.build = {
+    ipsw = pkgs.fetchurl {
+      inherit (image) url hash;
+    };
+
+    vm = pkgs.writeShellApplication {
+      name = "run-${config.networking.hostName}-vm";
+      text = ''
+        exec ${lib.getExe runner} --config ${configuration} "$@"
+      '';
+    };
   };
 }

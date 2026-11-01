@@ -22,6 +22,7 @@
       networking.hostName = lib.mkForce "guest";
 
       virtualisation = {
+        macosVersion = "26.6.2";
         cores = 2;
         memorySize = 8192;
         graphics = false;

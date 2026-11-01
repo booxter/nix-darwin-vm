@@ -14,6 +14,7 @@ type configuration struct {
 	Cores      int    `json:"cores"`
 	MemorySize int    `json:"memorySize"`
 	Graphics   bool   `json:"graphics"`
+	IPSW       string `json:"ipsw"`
 }
 
 func loadConfiguration(path string) (configuration, error) {
@@ -36,6 +37,9 @@ func loadConfiguration(path string) (configuration, error) {
 	}
 	if config.MemorySize <= 0 {
 		return config, errors.New("memorySize must be positive (MiB)")
+	}
+	if config.IPSW == "" {
+		return config, errors.New("IPSW path is required")
 	}
 
 	return config, nil

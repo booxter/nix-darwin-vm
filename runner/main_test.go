@@ -33,14 +33,21 @@ func TestLoadConfiguration(t *testing.T) {
 		"name": "guest",
 		"cores": 2,
 		"memorySize": 8192,
-		"graphics": false
+		"graphics": false,
+		"ipsw": "/nix/store/example.ipsw"
 	}`)
 
 	got, err := loadConfiguration(path)
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := configuration{Name: "guest", Cores: 2, MemorySize: 8192, Graphics: false}
+	want := configuration{
+		Name:       "guest",
+		Cores:      2,
+		MemorySize: 8192,
+		Graphics:   false,
+		IPSW:       "/nix/store/example.ipsw",
+	}
 	if got != want {
 		t.Fatalf("got %+v, want %+v", got, want)
 	}
@@ -110,6 +117,11 @@ func TestRunRejectsInvalidConfiguration(t *testing.T) {
 			name:     "invalid memory",
 			contents: `{"name": "guest", "cores": 4, "memorySize": -1}`,
 			message:  "memorySize must be positive",
+		},
+		{
+			name:     "missing IPSW",
+			contents: `{"name": "guest", "cores": 4, "memorySize": 4096}`,
+			message:  "IPSW path is required",
 		},
 	}
 

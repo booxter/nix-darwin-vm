@@ -3,6 +3,16 @@
 `macos.json` pins Apple IPSW restore images by exact macOS version, with their
 build identifiers, Apple download URLs, and SHA-256 hashes in Nix SRI format.
 
+Select an inventory entry in a VM variant:
+
+```nix
+virtualisation.vmVariant.virtualisation.macosVersion = "27.2";
+```
+
+The default is pinned to `27.2`. Nix fetches and verifies the selected IPSW when
+building the VM launcher, and passes its store path to the runner. Updating the
+inventory does not change the default version.
+
 Run the updater from the repository root:
 
 ```sh
