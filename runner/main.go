@@ -1,13 +1,16 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
 )
 
 type configuration struct {
@@ -82,8 +85,16 @@ func run(args []string, stderr io.Writer) int {
 		return 1
 	}
 
-	fmt.Fprintf(stderr, "runner: running VM %q is not implemented yet\n", config.Name)
-	return 1
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
+	defer stop()
+	if err := runVM(ctx, config, os.Stdout, stderr); err != nil {
+		fmt.Fprintln(stderr, "runner:", err)
+		if ctx.Err() != nil {
+			return 130
+		}
+		return exitCode(err)
+	}
+	return 0
 }
 
 func main() {

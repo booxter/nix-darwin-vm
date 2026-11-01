@@ -63,6 +63,7 @@ in
 
     vm = pkgs.writeShellApplication {
       name = "run-${config.networking.hostName}-vm";
+      runtimeInputs = [ pkgs.tart ];
       text = ''
         exec ${lib.getExe runner} --config ${configuration} "$@"
       '';
