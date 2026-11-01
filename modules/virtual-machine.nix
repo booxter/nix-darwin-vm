@@ -7,6 +7,10 @@
 let
   images = builtins.fromJSON (builtins.readFile ../images/macos.json);
   image = images.${config.virtualisation.macosVersion};
+  installers = builtins.fromJSON (builtins.readFile ../installers/nix.json);
+  installer = config.virtualisation.nixInstaller;
+  installerReleases = installers.${installer.type};
+  installerVersions = lib.sort lib.versionOlder (builtins.attrNames installerReleases);
   runner = pkgs.callPackage ../runner { };
   configuration = (pkgs.formats.json { }).generate "vm-config.json" {
     name = config.networking.hostName;
@@ -36,6 +40,24 @@ in
       type = lib.types.enum (builtins.attrNames images);
       default = "27.2";
       description = "Exact macOS version of the Apple IPSW restore image to use.";
+    };
+
+    nixInstaller = {
+      type = lib.mkOption {
+        type = lib.types.enum (builtins.attrNames installers);
+        default = "nix";
+        description = "Installer family. The nix family uses the installer bundled with Nix releases.";
+      };
+
+      version = lib.mkOption {
+        type = lib.types.enum installerVersions;
+        default = lib.last installerVersions;
+        defaultText = lib.literalExpression "the highest version in the selected installer's inventory";
+        description = ''
+          Installer release version. For the nix family this is also the Nix
+          version. Defaults to the newest release in the committed inventory.
+        '';
+      };
     };
 
     stateDirectory = lib.mkOption {
@@ -70,6 +92,10 @@ in
   config.system.build = {
     ipsw = pkgs.fetchurl {
       inherit (image) url hash;
+    };
+
+    nixInstaller = pkgs.fetchurl {
+      inherit (installerReleases.${installer.version}) url hash;
     };
 
     vm = pkgs.writeShellApplication {

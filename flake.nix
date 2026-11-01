@@ -17,6 +17,7 @@
     let
       pkgs = nixpkgs.legacyPackages.aarch64-darwin;
       updateImages = pkgs.callPackage ./scripts/update-images { };
+      updateNixInstallers = pkgs.callPackage ./scripts/update-nix-installers { };
     in
     {
       darwinModules.vm = import ./modules/vm.nix;
@@ -27,12 +28,19 @@
         meta.description = "Update the macOS restore image inventory";
       };
 
+      apps.aarch64-darwin.update-nix-installers = {
+        type = "app";
+        program = pkgs.lib.getExe updateNixInstallers;
+        meta.description = "Update the Nix installer inventory";
+      };
+
       checks.aarch64-darwin.module-interface = import ./tests {
         inherit nix-darwin pkgs;
         vmModule = self.darwinModules.vm;
       };
       checks.aarch64-darwin.runner = pkgs.callPackage ./runner { };
       checks.aarch64-darwin.update-images = updateImages;
+      checks.aarch64-darwin.update-nix-installers = updateNixInstallers;
 
       formatter.aarch64-darwin = pkgs.nixfmt-tree.override {
         runtimeInputs = [ pkgs.go ];

@@ -23,6 +23,10 @@
 
       virtualisation = {
         macosVersion = "26.6.2";
+        nixInstaller = {
+          type = "nix";
+          version = "2.34.0";
+        };
         bootstrapUser = "builder";
         stateDirectory = "./custom vm";
         cores = 2;

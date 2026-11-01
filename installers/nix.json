@@ -1,0 +1,708 @@
+{
+  "nix": {
+    "2.10.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.10.0/nix-2.10.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-G6SzwvQ1jdSN0yY6uRi91DjacDmEiYHIq8vCmND+03A="
+    },
+    "2.10.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.10.1/nix-2.10.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-gjzOodiDf7+fbB+JC+BTC2Ov9ki3ouhwueWixFOa+wY="
+    },
+    "2.10.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.10.2/nix-2.10.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-JPJFkcwI/mnfCliQ0heXHmoENHlz0llFq6akQYuYw00="
+    },
+    "2.10.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.10.3/nix-2.10.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-3CQoejg9uyjwbFzexTdwmEPyWYGd0VGMDg30SHDfWzg="
+    },
+    "2.11.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.11.0/nix-2.11.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-yRHgl87U4vYGAYwYIRigpEZSDLHB8qSOhHwJWW6M9S0="
+    },
+    "2.11.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.11.1/nix-2.11.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-3erS+o72ubWP7EqxK0YPgCqWL/9o+xyPpHx7i1c5vAs="
+    },
+    "2.12.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.12.0/nix-2.12.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-grNUFRTIEjeiQn1JGlqdmkI+Fi7uQEFNS9ueVI493vo="
+    },
+    "2.12.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.12.1/nix-2.12.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-eGMPWllbOB0yM/qWRbRkop488kD4lqWjZlG0nFctCsg="
+    },
+    "2.13.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.13.0/nix-2.13.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-L9r+EVXPbhPb2xRW4zwU/GpyMxoqGPTMucjYs3bRu3M="
+    },
+    "2.13.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.13.1/nix-2.13.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-xVXMkRIXcLgfq0Rb0yRdJepyxXKKRXI4xyGsRzxjXAA="
+    },
+    "2.13.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.13.2/nix-2.13.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-PsJCCjRzITCiD7PzYMKUrI+xf766UF7Pu9de8OYNBOA="
+    },
+    "2.13.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.13.3/nix-2.13.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-IA53e1Qd262v2+OBfbpQR1T6j7DJ0d0/M97mV4BFqzk="
+    },
+    "2.13.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.13.4/nix-2.13.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-b2aDlA2tRH4Pb0PShRyNxBfg7WOzXoTkEXCE/niFg4g="
+    },
+    "2.13.5": {
+      "url": "https://releases.nixos.org/nix/nix-2.13.5/nix-2.13.5-aarch64-darwin.tar.xz",
+      "hash": "sha256-T57OizRj0U9XvYHk+91W0+rXR0pqtCckJ+pMW29yiP8="
+    },
+    "2.13.6": {
+      "url": "https://releases.nixos.org/nix/nix-2.13.6/nix-2.13.6-aarch64-darwin.tar.xz",
+      "hash": "sha256-eXTJ9AvvQzOcUKUToGabNi6DMiHYesMsY0lsZQBmgoU="
+    },
+    "2.14.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.14.0/nix-2.14.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-3DkoAEIwnmDNn9jYgm78mcBx0Fv2kso38IsP4E5LKTQ="
+    },
+    "2.14.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.14.1/nix-2.14.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-TtCf92jHlfO4WdeCHmAjzh9AK+TFULjD1ISTw8StB0Y="
+    },
+    "2.15.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.15.0/nix-2.15.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-LUqAYOEgd/F04GNewG2U2u7gRgFmFlQUaY398O+HkVo="
+    },
+    "2.15.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.15.1/nix-2.15.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-IwHQPbhSiuyoAZLpGCQ/KXqzQT+Rgb/V5e8fVnqHKQ0="
+    },
+    "2.15.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.15.2/nix-2.15.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-I8ptTD4rP0oO/JmAd+1XQCEg7By7wDvrOA6zEDaBT3U="
+    },
+    "2.15.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.15.3/nix-2.15.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-+ZHAn8uap5oQ4Ikw3VE0vU1/KDjvvtbXcjML+m79T9g="
+    },
+    "2.16.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.16.0/nix-2.16.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-xr2Gt6cyuN2i/39kWYoKIqM8gjDglf3uFyGDKk+aJlA="
+    },
+    "2.16.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.16.1/nix-2.16.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-bT48pkhRk4wecaedgtt6rSQTOJhDKecZyzP9Vrxln7U="
+    },
+    "2.16.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.16.2/nix-2.16.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-JgtYTgCu1rqC7KJHxOQlvEsSuvu8MxUbRWRMsuAPCTQ="
+    },
+    "2.16.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.16.3/nix-2.16.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-ztmBYcATyleQOc+Jw6eTPwXVARqhCNP0heuu19AS6Tc="
+    },
+    "2.17.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.17.0/nix-2.17.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-ZjfuXuzwuGVhAWUCefu0TfjxdsOMmmMPrTk+It7dPuA="
+    },
+    "2.17.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.17.1/nix-2.17.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-kQIr93J6qyHPH4Ch0NTC45JkEaKsYzeLMG0156pNagE="
+    },
+    "2.17.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.17.2/nix-2.17.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-gQDU/Zrbh6SZCn1rVuF7JkFKBPkTj3wv448vI+1COjE="
+    },
+    "2.18.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.18.0/nix-2.18.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-NLveN5IZ0aN87VD8JsbKi2dXoeRaknaFX6K8daV1qrY="
+    },
+    "2.18.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.18.1/nix-2.18.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-7tmo3uLkzv/Sx6XcZ+Vn0VpJkmwBqxcEIt3QA1qU19U="
+    },
+    "2.18.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.18.2/nix-2.18.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-/F8qKVRyjTjl5DQitQsanpFJxmR8TWgtooEv2tfgeHs="
+    },
+    "2.18.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.18.3/nix-2.18.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-bl2uqIbf7Ml9UKsRnKPVNeFsonkWyqV+C3i4w10+PPI="
+    },
+    "2.18.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.18.4/nix-2.18.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-lGbhM4WmB//iJumriJU//Q8pI6xlhRCvRsgui0McUi0="
+    },
+    "2.18.5": {
+      "url": "https://releases.nixos.org/nix/nix-2.18.5/nix-2.18.5-aarch64-darwin.tar.xz",
+      "hash": "sha256-MkbsqC43AF1WdD0bpX9cwYX/bMxMTfz57xEzEfx3MeY="
+    },
+    "2.18.6": {
+      "url": "https://releases.nixos.org/nix/nix-2.18.6/nix-2.18.6-aarch64-darwin.tar.xz",
+      "hash": "sha256-ga+xbwY6ITuTWlkW5BxoRTOHzzX00TtoJqpa5QFVZ0k="
+    },
+    "2.18.7": {
+      "url": "https://releases.nixos.org/nix/nix-2.18.7/nix-2.18.7-aarch64-darwin.tar.xz",
+      "hash": "sha256-/2sPgVVcYCSZDCQgu8xViSMPFMakjdSDMDHI905GOEg="
+    },
+    "2.18.8": {
+      "url": "https://releases.nixos.org/nix/nix-2.18.8/nix-2.18.8-aarch64-darwin.tar.xz",
+      "hash": "sha256-gRm03GhMCB1g9ic42nIPft5k0CKJKxAG+pWZrG/oN8o="
+    },
+    "2.18.9": {
+      "url": "https://releases.nixos.org/nix/nix-2.18.9/nix-2.18.9-aarch64-darwin.tar.xz",
+      "hash": "sha256-jlStp7GPkj2HLqwx/au7v6RvEqE4mHpqgpZHJcWQewI="
+    },
+    "2.19.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.19.0/nix-2.19.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-4a5hK4JBzkcdabwNmBIzbaGEPbZTjRh17nFKMfNSKuU="
+    },
+    "2.19.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.19.1/nix-2.19.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-rnoFEfOAuxJVQvA8RILd92Dr9R0DfSjNLtcycmIaep8="
+    },
+    "2.19.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.19.2/nix-2.19.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-3Jo7EJ9UeyEr/ovNpA3jN5AYa1/4vJd1zc7ltTQi1mU="
+    },
+    "2.19.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.19.3/nix-2.19.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-QRqrhIs4NgUm+720RppsyiEZxvxia6Dwh8as/jSlfBw="
+    },
+    "2.19.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.19.4/nix-2.19.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-jQeaGM1va88aKFI0qGypS9h8oN7n51XVHa3oni42voc="
+    },
+    "2.19.5": {
+      "url": "https://releases.nixos.org/nix/nix-2.19.5/nix-2.19.5-aarch64-darwin.tar.xz",
+      "hash": "sha256-v4J/7Cn7EnMew/uEW7k97woSMFgygJzlPH/rgq+QE6s="
+    },
+    "2.19.6": {
+      "url": "https://releases.nixos.org/nix/nix-2.19.6/nix-2.19.6-aarch64-darwin.tar.xz",
+      "hash": "sha256-8lJ9uTK4B50sPfdAkNAmRq9RZKVxbdnzimxbpA56q4A="
+    },
+    "2.19.7": {
+      "url": "https://releases.nixos.org/nix/nix-2.19.7/nix-2.19.7-aarch64-darwin.tar.xz",
+      "hash": "sha256-W7RFB4U3/YmYtMFFLQw9idjp5OdIPOBomp3P5DHZ1gk="
+    },
+    "2.20.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.20.0/nix-2.20.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-8kfoTzqT8CgJlUgCs/0EmgiFc56eIqz2iWkuceZmO/0="
+    },
+    "2.20.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.20.1/nix-2.20.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-ik3a+JvRFOlsBhLYE2h5wsOEIzCjubc8TyKI+hGjtyw="
+    },
+    "2.20.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.20.2/nix-2.20.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-q18UVh2JT/1g/2z5xVziKloW67OVvZLCbuXcK8yqm00="
+    },
+    "2.20.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.20.3/nix-2.20.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-ykVMlcyzWVMzHurShj2FbiNzC2EGd6qIptVNeEvTTxc="
+    },
+    "2.20.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.20.4/nix-2.20.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-RyXGYd+bahAQtuEErxyrITsJMpm5VwtnWUBw7LsY3kg="
+    },
+    "2.20.5": {
+      "url": "https://releases.nixos.org/nix/nix-2.20.5/nix-2.20.5-aarch64-darwin.tar.xz",
+      "hash": "sha256-jmQOno6Gf6VRmiDto3GqUPfCj9xXjK7CNlXVNywDffQ="
+    },
+    "2.20.6": {
+      "url": "https://releases.nixos.org/nix/nix-2.20.6/nix-2.20.6-aarch64-darwin.tar.xz",
+      "hash": "sha256-w6izeAcVJjXYC+LkLARAFSjS9IzLuNDLohse66Uud4I="
+    },
+    "2.20.7": {
+      "url": "https://releases.nixos.org/nix/nix-2.20.7/nix-2.20.7-aarch64-darwin.tar.xz",
+      "hash": "sha256-Mknp6fA9E1uXTCTQMemN0smldlX3OViD/DAq0ZPdbEg="
+    },
+    "2.20.8": {
+      "url": "https://releases.nixos.org/nix/nix-2.20.8/nix-2.20.8-aarch64-darwin.tar.xz",
+      "hash": "sha256-balGHZHNcarVOw1u5HcP7iNdaIems3nLKiqUv3mkbj0="
+    },
+    "2.20.9": {
+      "url": "https://releases.nixos.org/nix/nix-2.20.9/nix-2.20.9-aarch64-darwin.tar.xz",
+      "hash": "sha256-bgaur1RkUSlV3Pcc4JHxlXeqcpn3Oqq/7k1DYfm0OfY="
+    },
+    "2.21.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.21.0/nix-2.21.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-Xlx3pjhMuLJecbWmBGHbI7MgmLHo2WGOl6DQkmmjD80="
+    },
+    "2.21.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.21.1/nix-2.21.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-yY+pnqdGRuIkC7aJU9CZA9e2NIfMKjXDcfMHlK85pZo="
+    },
+    "2.21.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.21.2/nix-2.21.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-TSIhjfhhpXSvzUAIvnsKR8ULjNFO7WXtoMcsxZGDV9o="
+    },
+    "2.21.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.21.3/nix-2.21.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-CAZtoS3l6YyJ8HV5jc5aBPvrU/bRVsKwDTtvjnM8gaA="
+    },
+    "2.21.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.21.4/nix-2.21.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-BR8TYaTn98Ij1185+YWKXNTmqqTtfSZ4aZ/iiyTlzvU="
+    },
+    "2.21.5": {
+      "url": "https://releases.nixos.org/nix/nix-2.21.5/nix-2.21.5-aarch64-darwin.tar.xz",
+      "hash": "sha256-z+S5BO9upIxTSbtnW/+tIBYWPkFcD40iAJLwm63yZgo="
+    },
+    "2.22.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.22.0/nix-2.22.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-4EBmBibzVXoTUXNaQ/B96lGPinVnDLeb5XwwvPFgO2I="
+    },
+    "2.22.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.22.1/nix-2.22.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-HMHLgudE6FO40sb+B1oQSMNgCkBLS4iUrokr8kJYyjc="
+    },
+    "2.22.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.22.2/nix-2.22.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-JXlG0tB4FvMBKFAjKoAC+gnSEquoBrQZtIKYjgHrYpU="
+    },
+    "2.22.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.22.3/nix-2.22.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-mMCygm9eMIK0tus0gkaoBZA7pnkvny9sjghyjri4Ms0="
+    },
+    "2.22.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.22.4/nix-2.22.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-45ROwXfTGPxOiBGD5R8kA1eXSEYNnd0zJ4B2SNoeH6M="
+    },
+    "2.23.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.23.0/nix-2.23.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-nJ+jja+CbamYptc5RV44CzqUanBFPTz69RM9oY2UyCU="
+    },
+    "2.23.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.23.1/nix-2.23.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-6GIPf1jJqPaggK2+bWHhkz/cqrX2WzVZ8KOo/BebYbQ="
+    },
+    "2.23.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.23.2/nix-2.23.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-OpJGL0mm7qjq8SNAv68MOgv7mdpPFAibReodDW89JJg="
+    },
+    "2.23.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.23.3/nix-2.23.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-r1Nwtj/cDIAJrUJEbfxGrTR4VfyJJWuGtQgKwEyJgo8="
+    },
+    "2.23.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.23.4/nix-2.23.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-BOpR3LUdcSmZOYzhNGtYZ7Ic9atbXPOZOHEeYIgNeBM="
+    },
+    "2.24.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.24.0/nix-2.24.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-QA/eNVlRICvqsfsThslxDzy99nUBzszTn0Gf0hgjWwA="
+    },
+    "2.24.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.24.1/nix-2.24.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-A+AYXygIgZSFDYckmBzBS+VMMD88Fp0yP1VxCoqUyXg="
+    },
+    "2.24.10": {
+      "url": "https://releases.nixos.org/nix/nix-2.24.10/nix-2.24.10-aarch64-darwin.tar.xz",
+      "hash": "sha256-k8kJi4j4T2u9//oXrFRDQVaGWuFAX64IDpV2OHGlWKI="
+    },
+    "2.24.11": {
+      "url": "https://releases.nixos.org/nix/nix-2.24.11/nix-2.24.11-aarch64-darwin.tar.xz",
+      "hash": "sha256-7B6/V8itRbRxlAvDjaok7WqI2t+7xki9yiqlOYqRCoE="
+    },
+    "2.24.12": {
+      "url": "https://releases.nixos.org/nix/nix-2.24.12/nix-2.24.12-aarch64-darwin.tar.xz",
+      "hash": "sha256-P/Vw6CNEVm3D2WqecTBGb00yk9TxGmNpvBrbSjilgfM="
+    },
+    "2.24.13": {
+      "url": "https://releases.nixos.org/nix/nix-2.24.13/nix-2.24.13-aarch64-darwin.tar.xz",
+      "hash": "sha256-kC/nYA9WG50UQWf4detlyklrEL4inw5Y4c09LUkROF0="
+    },
+    "2.24.14": {
+      "url": "https://releases.nixos.org/nix/nix-2.24.14/nix-2.24.14-aarch64-darwin.tar.xz",
+      "hash": "sha256-OA96o6mls20EMUxd8twesIJSR51B7/VUbMuN1qCaThs="
+    },
+    "2.24.15": {
+      "url": "https://releases.nixos.org/nix/nix-2.24.15/nix-2.24.15-aarch64-darwin.tar.xz",
+      "hash": "sha256-HLKxPYMfhoTuhecj6Aixg65VYnZAVJrFNCOypejaySc="
+    },
+    "2.24.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.24.2/nix-2.24.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-HA+ojmwOL0YXK6tYR2nqGYbYPnavPt1acDmYypsYLFc="
+    },
+    "2.24.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.24.3/nix-2.24.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-32Q8RieTgYAVlPcHlgSFIhtbv9y+/ZbopdwcQoarmZ4="
+    },
+    "2.24.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.24.4/nix-2.24.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-6wrwyMLZPuEd6qQ/HabByNxU2o3iMRz2SCfvEZhX6U4="
+    },
+    "2.24.5": {
+      "url": "https://releases.nixos.org/nix/nix-2.24.5/nix-2.24.5-aarch64-darwin.tar.xz",
+      "hash": "sha256-zgUlAS/X3WGxsbtu2U8zKfz7bSToQrFNlCpy4FcT060="
+    },
+    "2.24.6": {
+      "url": "https://releases.nixos.org/nix/nix-2.24.6/nix-2.24.6-aarch64-darwin.tar.xz",
+      "hash": "sha256-DRDyRYkvYgVYU6zj0HPklHon+2RQo7bTVwqzByb/Y3E="
+    },
+    "2.24.7": {
+      "url": "https://releases.nixos.org/nix/nix-2.24.7/nix-2.24.7-aarch64-darwin.tar.xz",
+      "hash": "sha256-64UNrhPIArFsp4YJ1dP2Lbcnjq1DeUpphDXtUDoDXeI="
+    },
+    "2.24.8": {
+      "url": "https://releases.nixos.org/nix/nix-2.24.8/nix-2.24.8-aarch64-darwin.tar.xz",
+      "hash": "sha256-uYHB4zy9cjpynl94VrBmrBY1NGnG9jD1MIbO6KEdq7A="
+    },
+    "2.24.9": {
+      "url": "https://releases.nixos.org/nix/nix-2.24.9/nix-2.24.9-aarch64-darwin.tar.xz",
+      "hash": "sha256-FbhQRvt96TB4h4u83XX2hRTdmFpov5bQ7mOw/ViFG2E="
+    },
+    "2.25.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.25.0/nix-2.25.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-jGtLV1gRcwA7pcRK6xQtnh+AMMxhPK5Yqtr0QuT+7jk="
+    },
+    "2.25.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.25.1/nix-2.25.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-7hIhSec2p77MjLbXmFnmRqIItGLf+ImtStuN4dNnTT4="
+    },
+    "2.25.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.25.2/nix-2.25.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-gjVdZiyuHyPtHiIiUgPcpwyQEqJie2ocFbz9N2GEnrQ="
+    },
+    "2.25.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.25.3/nix-2.25.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-nTt+rdHJtxrkPDJE6I/D3Ym6WfHHjubH0igAxWK35m4="
+    },
+    "2.25.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.25.4/nix-2.25.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-m15ttf+MRchFBgGgxD3MUmv52IWJdrUrinEY9tdWKGg="
+    },
+    "2.25.5": {
+      "url": "https://releases.nixos.org/nix/nix-2.25.5/nix-2.25.5-aarch64-darwin.tar.xz",
+      "hash": "sha256-RHxUu77VH8SVD2NgcNS4c6Mj4HFK3+0BMutI96jN80I="
+    },
+    "2.26.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.26.0/nix-2.26.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-93ewGu6Jlk7PPqSyq6gqGj2BfkAAdvrMpQj7ICDmKKI="
+    },
+    "2.26.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.26.1/nix-2.26.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-Nmvbk3u53085/BheqbLr+p7az6eYr5jpd90RRe8eXTY="
+    },
+    "2.26.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.26.2/nix-2.26.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-4Pnhd1+irPC92JTwvI4ekm3OQoI8GWYqHl1BRLpeWsA="
+    },
+    "2.26.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.26.3/nix-2.26.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-zxnEzxrzbz30ccslcfA7gwGGuXcr2/GUi8NDNu8+Tfs="
+    },
+    "2.26.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.26.4/nix-2.26.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-047cRT410hajTIRkQwxydVL+ik05iYdRCPYBLYyP1Fo="
+    },
+    "2.27.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.27.0/nix-2.27.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-nXQApcO/yEiTse0f+hoNZEu4T0S7lp19oFXxNO9GhxE="
+    },
+    "2.27.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.27.1/nix-2.27.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-IkQEr5sI6/0l7NxJpMcCw5+Sr2ioR6fj3169czMSDRo="
+    },
+    "2.28.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.28.0/nix-2.28.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-9gV2PxwC6jnemZ6FReSIKXxG77Lmdhi6ueMaW2wNeEE="
+    },
+    "2.28.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.28.1/nix-2.28.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-4Gc8gj8s4Ug+G0oLxQMEpQPpE4npGiQP4Qc4KJjiecw="
+    },
+    "2.28.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.28.2/nix-2.28.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-Bof09OD/1Hnz3MNhaCCiKm6sGfqiULkLXL37Fjd63ds="
+    },
+    "2.28.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.28.3/nix-2.28.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-a+/shvTo7/pbARKtBJHcjiscJuWpXBzEDB6mAZTVPIg="
+    },
+    "2.28.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.28.4/nix-2.28.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-abvXe3s47vvVU/4hCJzE2Z21/T9C0Vp+diZ1N+OF8BM="
+    },
+    "2.28.5": {
+      "url": "https://releases.nixos.org/nix/nix-2.28.5/nix-2.28.5-aarch64-darwin.tar.xz",
+      "hash": "sha256-ZW3ijWhyE7FSl6nRCf7OiuRUomWkvBs69XyHd9Rr/Sw="
+    },
+    "2.28.6": {
+      "url": "https://releases.nixos.org/nix/nix-2.28.6/nix-2.28.6-aarch64-darwin.tar.xz",
+      "hash": "sha256-oDG3XqakcKymq3VmkFKzS0/K+UWkZBPXMJxbwiIGoEw="
+    },
+    "2.28.7": {
+      "url": "https://releases.nixos.org/nix/nix-2.28.7/nix-2.28.7-aarch64-darwin.tar.xz",
+      "hash": "sha256-YWkcUSXrqQ4TMQ8E/H6b0+aouAxAqF+EGWf+fzP2RTA="
+    },
+    "2.28.8": {
+      "url": "https://releases.nixos.org/nix/nix-2.28.8/nix-2.28.8-aarch64-darwin.tar.xz",
+      "hash": "sha256-UuwB6wMFEA0NA3Hx3s5xWl8mcEQ+6qZiLp+rCqwuV0Y="
+    },
+    "2.29.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.29.0/nix-2.29.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-90KKlJD3oZc7A3glPpM8uH7nKBg/RQBrua/ZJY09fNU="
+    },
+    "2.29.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.29.1/nix-2.29.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-2RqRj9qeOuvWiSkZ9D5R5PlZ+mDMoYjL76YDn6sDc60="
+    },
+    "2.29.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.29.2/nix-2.29.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-3W49DW0fSZl/EPnGxxTciCHZgUAL5Ab9UAWno0XREoQ="
+    },
+    "2.29.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.29.3/nix-2.29.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-NSc2VwfwWIbm5XKAh7/OHaq0eDn248VRrE+j5czjnzM="
+    },
+    "2.29.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.29.4/nix-2.29.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-mH0cV9OMQSGZ8P5cGNV1l1B63IKO7bjiiO42DSf8qiU="
+    },
+    "2.3.14": {
+      "url": "https://releases.nixos.org/nix/nix-2.3.14/nix-2.3.14-aarch64-darwin.tar.xz",
+      "hash": "sha256-UHiwoWhWgrfYxE2RvTTuaXmVlQVkFmLDfCJaC37X6rM="
+    },
+    "2.3.15": {
+      "url": "https://releases.nixos.org/nix/nix-2.3.15/nix-2.3.15-aarch64-darwin.tar.xz",
+      "hash": "sha256-kQOOvwENcrPQrXrfCqXa84s86ENxA5at/Vs0z1PlCqE="
+    },
+    "2.3.16": {
+      "url": "https://releases.nixos.org/nix/nix-2.3.16/nix-2.3.16-aarch64-darwin.tar.xz",
+      "hash": "sha256-NfPM8n/M7IV9YizzHg2TB+LBRft8xZcgtzvwgSgsqRc="
+    },
+    "2.3.17": {
+      "url": "https://releases.nixos.org/nix/nix-2.3.17/nix-2.3.17-aarch64-darwin.tar.xz",
+      "hash": "sha256-k+0nUOzehZyUVmuVzcM6V44l2DItCrsNBzb+Xhie0L4="
+    },
+    "2.3.18": {
+      "url": "https://releases.nixos.org/nix/nix-2.3.18/nix-2.3.18-aarch64-darwin.tar.xz",
+      "hash": "sha256-LDjORnqSqzEdWZbYH8R4KVsFuZw7WgtAaRZwXFzSmLU="
+    },
+    "2.30.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.30.0/nix-2.30.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-YR8zHi1UQwhY+FU8KC9CvZ7dYIrsxP48QX+YvTZtBuI="
+    },
+    "2.30.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.30.1/nix-2.30.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-URGhy0A7cTrK5rUR34zGSpE97sJYhsIBxb05CKqa8/0="
+    },
+    "2.30.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.30.2/nix-2.30.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-/E3tJ9RAPeq52n+txkiHuui06iGU8Qf0SNN9jsEwQV8="
+    },
+    "2.30.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.30.3/nix-2.30.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-XE4i9rvGcpPvLYO9JAALC35qKFmU2gzf+cJDRyN8Ll8="
+    },
+    "2.30.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.30.4/nix-2.30.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-DO+Wd+mFy8upR/FGwCLLlI5zf77M6MeXssih+xO0sfk="
+    },
+    "2.30.5": {
+      "url": "https://releases.nixos.org/nix/nix-2.30.5/nix-2.30.5-aarch64-darwin.tar.xz",
+      "hash": "sha256-Sii5g51ME624ygMwWtn3A5e5KxuyZB2rSidbR4W+jj8="
+    },
+    "2.30.6": {
+      "url": "https://releases.nixos.org/nix/nix-2.30.6/nix-2.30.6-aarch64-darwin.tar.xz",
+      "hash": "sha256-UclberkVsBerZDEtgFNR9CG0ORFCGNiOz32GKOwn6G0="
+    },
+    "2.31.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.31.0/nix-2.31.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-kUyB3ZKyal1z37np42Kb/qEIZo7+/YDT1CVT5KdrRCQ="
+    },
+    "2.31.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.31.1/nix-2.31.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-SXxIfsc85v4Cf073agTd6LZ3S6FOR5/V7JbEXPXkFkw="
+    },
+    "2.31.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.31.2/nix-2.31.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-O6oK+Ioe9OLMgstkzThLGAXsw3cbV06XJ3riE9UnEdg="
+    },
+    "2.31.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.31.3/nix-2.31.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-NcgGybzkIeN7rQ+1GE+YTJQBP94+M2pY06asRwWwP2Y="
+    },
+    "2.31.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.31.4/nix-2.31.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-8CPo7Vh8/ReAnmglqkZSD5m448jFxvrz4wj4SoOeLhM="
+    },
+    "2.31.5": {
+      "url": "https://releases.nixos.org/nix/nix-2.31.5/nix-2.31.5-aarch64-darwin.tar.xz",
+      "hash": "sha256-4rgN1A/WLMfUwu5eTTnoQcx9ET+R9xcgB5iP4Xo5S7M="
+    },
+    "2.31.6": {
+      "url": "https://releases.nixos.org/nix/nix-2.31.6/nix-2.31.6-aarch64-darwin.tar.xz",
+      "hash": "sha256-Dne98fhBJVTe4cLXbHAkx5kR9lt1AH9+ROskkWvbNAs="
+    },
+    "2.32.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.32.0/nix-2.32.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-BLg/UShpEuwU87O/ElNTFStqVqD96XTt1zioQY/eaN4="
+    },
+    "2.32.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.32.1/nix-2.32.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-Raq6tuerG9+9vphdx0ao04ktlNLQ6SsHiVs7tTRiUnE="
+    },
+    "2.32.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.32.2/nix-2.32.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-YsA8MuwVxOiuyj5dAMUsamoUHQ89sDZU2qv2WCzEE9w="
+    },
+    "2.32.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.32.3/nix-2.32.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-5wgNLdPDonhzZRfiH1Dumck7h3Ox3tQ0a3umk5qTLIM="
+    },
+    "2.32.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.32.4/nix-2.32.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-BzwfmdNySSJkYBt49XlLXbQY0GVDcLR/OdJK62zBp+Y="
+    },
+    "2.32.5": {
+      "url": "https://releases.nixos.org/nix/nix-2.32.5/nix-2.32.5-aarch64-darwin.tar.xz",
+      "hash": "sha256-Ql5eHNwUZ5P2VpgRTC04PnqhJzxDQBU08FYodh2Le58="
+    },
+    "2.32.6": {
+      "url": "https://releases.nixos.org/nix/nix-2.32.6/nix-2.32.6-aarch64-darwin.tar.xz",
+      "hash": "sha256-WBYqWxUFuMQi9DqJFB9TAdkMYIXHW6bfGYmUT/OSTb8="
+    },
+    "2.32.7": {
+      "url": "https://releases.nixos.org/nix/nix-2.32.7/nix-2.32.7-aarch64-darwin.tar.xz",
+      "hash": "sha256-LO3ak6RHiCu6sxfISiIV0FG61v72hNRzSxjwmbXVA8c="
+    },
+    "2.32.8": {
+      "url": "https://releases.nixos.org/nix/nix-2.32.8/nix-2.32.8-aarch64-darwin.tar.xz",
+      "hash": "sha256-drCrwbdlCN8rlbYrmBr1Bp+uPf9NMdjhDOD+kDdOirE="
+    },
+    "2.33.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.33.0/nix-2.33.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-yyTfpdiy/4dJLNNAguUROfHzWXDwSo2j+5Di5IlDRu0="
+    },
+    "2.33.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.33.1/nix-2.33.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-6OFpftrKEo8d9eS8kPmy0gP9STU4DEpG6vLo/BqGfH4="
+    },
+    "2.33.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.33.2/nix-2.33.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-BLIFYSl45TBOWjrwIKdZRlgHBhA8uWRG3I6XbxRPDIQ="
+    },
+    "2.33.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.33.3/nix-2.33.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-B4GDe0PQI0kzFB9jBcio/sbUnz0rJF7lt8Tl0qSjnDg="
+    },
+    "2.33.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.33.4/nix-2.33.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-UOF8aCZjmMYeOsT9CvMWTggYqPCwDSRpqBTXWvRPjdE="
+    },
+    "2.33.5": {
+      "url": "https://releases.nixos.org/nix/nix-2.33.5/nix-2.33.5-aarch64-darwin.tar.xz",
+      "hash": "sha256-Rv+7mA+ojbaMXgw48ybWXO5YhmECqZTSPWjpyO9kkNc="
+    },
+    "2.33.6": {
+      "url": "https://releases.nixos.org/nix/nix-2.33.6/nix-2.33.6-aarch64-darwin.tar.xz",
+      "hash": "sha256-WD3QLSu+0BfUvuhTLQMiOIkz6tF3q7JgaMsEFa05wcM="
+    },
+    "2.34.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.34.0/nix-2.34.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-R8t4yf3HtjDbu5qJhpyOi82MnrF74Db7oYWFEgaTpME="
+    },
+    "2.34.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.34.1/nix-2.34.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-mpNsYfeEiBGg9sXzcv+XtivzZpZCl3toCXUcBfppmvc="
+    },
+    "2.34.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.34.2/nix-2.34.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-8ArPjSgfP3ZymIYuTH/IDDwBwOCJxV3AKOyCUj9Ihhc="
+    },
+    "2.34.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.34.3/nix-2.34.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-zcFYEZadhVSbiKOofOL8u82nmsMU1tSQ2kuApPqURnU="
+    },
+    "2.34.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.34.4/nix-2.34.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-8oOJdJXI4pKd7rgi5LVgVfaRyKKqbMyWbJpA7VUfpxw="
+    },
+    "2.34.5": {
+      "url": "https://releases.nixos.org/nix/nix-2.34.5/nix-2.34.5-aarch64-darwin.tar.xz",
+      "hash": "sha256-7FY+PSvAzpkpVqL6/gmysekd2vaL48WcfRvnHGnLlnI="
+    },
+    "2.34.6": {
+      "url": "https://releases.nixos.org/nix/nix-2.34.6/nix-2.34.6-aarch64-darwin.tar.xz",
+      "hash": "sha256-WWrlVVrPtJdyOTS5i2a31jjrj32FaXVGbywSF86U+KE="
+    },
+    "2.34.7": {
+      "url": "https://releases.nixos.org/nix/nix-2.34.7/nix-2.34.7-aarch64-darwin.tar.xz",
+      "hash": "sha256-ceGDAcTqeMZn8nUxWRVrW9uJmZNyDoqnvMqX6DEtPWs="
+    },
+    "2.34.8": {
+      "url": "https://releases.nixos.org/nix/nix-2.34.8/nix-2.34.8-aarch64-darwin.tar.xz",
+      "hash": "sha256-rjsrGnS5VhENFN2BO+6A6kZialHdzijRQuCAU3mjSs8="
+    },
+    "2.34.9": {
+      "url": "https://releases.nixos.org/nix/nix-2.34.9/nix-2.34.9-aarch64-darwin.tar.xz",
+      "hash": "sha256-JyADP5hUxmaYj2XLKpovc7tcNPce6m5H9IJkc1g6xwM="
+    },
+    "2.35.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.35.0/nix-2.35.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-U9dYPIGhBJqRh81LzxlEKsWpeIXZ4MoaXNzYQaab58Y="
+    },
+    "2.35.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.35.1/nix-2.35.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-QU4HPEdU4Mnu0d0l5IKvRSE6NKpnyTAgHjXffIMzwZo="
+    },
+    "2.35.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.35.2/nix-2.35.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-FpXBOrpa+nwuzW3EqTk/YC57vEQO1F6BYCyDFUZYDsM="
+    },
+    "2.35.3": {
+      "url": "https://releases.nixos.org/nix/nix-2.35.3/nix-2.35.3-aarch64-darwin.tar.xz",
+      "hash": "sha256-OqLhriKT8Mptwt3nTlKAnmtKGGp0MCyLY5L179QzkB0="
+    },
+    "2.35.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.35.4/nix-2.35.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-7QxrJcwV4pxsvHjUwgqOet0/X2D997ld1emddOm6TkU="
+    },
+    "2.4": {
+      "url": "https://releases.nixos.org/nix/nix-2.4/nix-2.4-aarch64-darwin.tar.xz",
+      "hash": "sha256-R/SgKZp4zjluQ3wuyijWIZmDcw7diA8jhzmTWnceKeQ="
+    },
+    "2.5.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.5.0/nix-2.5.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-b/u3ixvKiL8F6tToljma+6t1sNO+hZUa1iR7r5qKq4g="
+    },
+    "2.5.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.5.1/nix-2.5.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-kRuovcSFJFERe8VglYitIgQ7aKT3xEldicgCiag7Hjw="
+    },
+    "2.6.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.6.0/nix-2.6.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-8h56NUeSP8R8WB3QJYOvR5hdg3ergHRMDtXfCuoomtI="
+    },
+    "2.6.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.6.1/nix-2.6.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-FHuCYvGayY89eMniO7rU7fkg8XOyq13Yv3KBwiORrbs="
+    },
+    "2.7.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.7.0/nix-2.7.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-nStDq+h5d0iJOxGYZPfR/8Ea/vEg4zySZPSXPJXGUyQ="
+    },
+    "2.8.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.8.0/nix-2.8.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-8yDzgSmeD8L5B66BrBI9BokkXLOfBnL4pl3/6hL6AkA="
+    },
+    "2.8.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.8.1/nix-2.8.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-SCq7a76IQLaZZazABUPAv15BPGbmZyrEsiQNwyW5Wt4="
+    },
+    "2.9.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.9.0/nix-2.9.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-BTiCizDoU9JCrK9DGfIjF3CS7YXHAkpoUgCp8mP7a5A="
+    },
+    "2.9.1": {
+      "url": "https://releases.nixos.org/nix/nix-2.9.1/nix-2.9.1-aarch64-darwin.tar.xz",
+      "hash": "sha256-BunJFX9NS2rg/6jY/R7xrOsp7TsL94iPL9HB6KFxKoQ="
+    },
+    "2.9.2": {
+      "url": "https://releases.nixos.org/nix/nix-2.9.2/nix-2.9.2-aarch64-darwin.tar.xz",
+      "hash": "sha256-qlQF9CepSybIOc67JzXG9A7KyXCSCIGUKyum0UfOBdw="
+    }
+  }
+}

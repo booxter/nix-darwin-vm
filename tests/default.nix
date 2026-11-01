@@ -6,6 +6,8 @@
 let
   inherit (pkgs) lib;
   images = builtins.fromJSON (builtins.readFile ../images/macos.json);
+  installers = builtins.fromJSON (builtins.readFile ../installers/nix.json);
+  defaultInstaller = minimal.config.virtualisation.vmVariant.virtualisation.nixInstaller;
 
   physical = nix-darwin.lib.darwinSystem {
     modules = [ ./fixtures/minimal.nix ];
@@ -35,6 +37,16 @@ let
       }
     ];
   };
+  unknownInstallerType = minimal.extendModules {
+    modules = [
+      { virtualisation.vmVariant.virtualisation.nixInstaller.type = "unknown"; }
+    ];
+  };
+  unknownInstallerVersion = minimal.extendModules {
+    modules = [
+      { virtualisation.vmVariant.virtualisation.nixInstaller.version = "unknown"; }
+    ];
+  };
   renamed = minimal.extendModules {
     modules = [
       {
@@ -47,6 +59,12 @@ let
     version:
     pkgs.fetchurl {
       inherit (images.${version}) url hash;
+    };
+
+  expectedInstaller =
+    version:
+    pkgs.fetchurl {
+      inherit (installers.nix.${version}) url hash;
     };
 
   withFixtureIPSW =
@@ -163,6 +181,50 @@ let
     testUnknownVersionIsRejected = {
       expr =
         (builtins.tryEval unknownVersion.config.virtualisation.vmVariant.virtualisation.macosVersion)
+        .success;
+      expected = false;
+    };
+
+    testDefaultInstallerFamily = {
+      expr = defaultInstaller.type;
+      expected = "nix";
+    };
+
+    testDefaultInstallerIsNewest = {
+      expr = builtins.all (version: !lib.versionOlder defaultInstaller.version version) (
+        builtins.attrNames installers.nix
+      );
+      expected = true;
+    };
+
+    testDefaultInstallerSelectsPinnedDownload = {
+      expr = minimal.config.virtualisation.vmVariant.system.build.nixInstaller.outPath;
+      expected = (expectedInstaller defaultInstaller.version).outPath;
+    };
+
+    testInstallerVersionCanBePinned = {
+      expr = guest.virtualisation.nixInstaller;
+      expected = {
+        type = "nix";
+        version = "2.34.0";
+      };
+    };
+
+    testPinnedInstallerSelectsPinnedDownload = {
+      expr = guest.system.build.nixInstaller.outPath;
+      expected = (expectedInstaller "2.34.0").outPath;
+    };
+
+    testUnknownInstallerFamilyIsRejected = {
+      expr =
+        (builtins.tryEval unknownInstallerType.config.virtualisation.vmVariant.virtualisation.nixInstaller.type)
+        .success;
+      expected = false;
+    };
+
+    testUnknownInstallerVersionIsRejected = {
+      expr =
+        (builtins.tryEval unknownInstallerVersion.config.virtualisation.vmVariant.virtualisation.nixInstaller.version)
         .success;
       expected = false;
     };

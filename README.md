@@ -59,4 +59,6 @@ Ctrl-C stops the VM and retains its state. Use macOS's Shut Down command inside
 the guest for a clean shutdown.
 
 The [image inventory guide](images/README.md) describes the pinned IPSWs and their
-updater. Run `nix fmt -- --ci` and `nix flake check` for formatting and tests.
+updater. The [installer inventory guide](installers/README.md) describes Nix
+installer selection. Run `nix fmt -- --ci` and `nix flake check` for formatting
+and tests.
