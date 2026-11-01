@@ -2,8 +2,7 @@
 
 Import `darwinModules.vm` into a nix-darwin configuration to expose
 `config.system.build.vm` and `config.system.build.vmSsh` for starting and
-connecting to a macOS VM with Nix installed. Nix-darwin activation is not yet
-supported.
+connecting to a macOS VM running the variant's nix-darwin configuration.
 
 Configure the VM variant:
 
@@ -35,8 +34,8 @@ nix run .#darwinConfigurations.example.config.system.build.vm
 The first build downloads the selected Apple IPSW and Nix installer. The first
 run creates a 50 GB guest disk, creates the `bootstrapUser` administrator account
 (default `vmadmin`), and installs Nix for all users.
-The VM variant's configuration is built on the host and copied at startup.
-Later runs transfer only missing store paths. The configuration is not activated.
+The VM variant's configuration is built on the host, copied, and activated at
+startup. Later runs transfer only missing store paths.
 Wait for the readiness message, then connect from another terminal:
 
 ```sh
@@ -60,8 +59,9 @@ guest's Nix daemon for configuration uploads.
 
 Later runs reuse the disk, credentials, and Nix installation, and apply CPU and
 memory settings.
-Choose a fresh state directory to change `bootstrapUser` or install a different
-`macosVersion` or Nix version. Audio and clipboard sharing are disabled.
+Choose a fresh state directory to change `bootstrapUser`, `macosVersion`, or the
+bootstrap Nix installer. After activation, the configuration's `nix.package`
+controls Nix when `nix.enable` is enabled. Audio and clipboard sharing are disabled.
 
 Ctrl-C stops the VM and retains its state. Use macOS's Shut Down command inside
 the guest for a clean shutdown.

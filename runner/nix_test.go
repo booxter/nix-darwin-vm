@@ -182,6 +182,28 @@ func TestExistingNixVersionMismatchIsRejected(t *testing.T) {
 	}
 }
 
+func TestManagedNixDoesNotRequireInstallerVersion(t *testing.T) {
+	g, server := nixFixture(t)
+	vm, err := readFakeVM(server.directory)
+	if err != nil {
+		t.Fatal(err)
+	}
+	vm.NixVersion = "2.34.9"
+	vm.CurrentSystem = "/nix/store/active-system"
+	if err := saveFakeVM(server.directory, vm); err != nil {
+		t.Fatal(err)
+	}
+	g.installer.Path = "/missing/installer.tar.xz"
+	facts, err := g.ensureNix(t.Context())
+	if err != nil || facts.NixVersion != vm.NixVersion || facts.CurrentSystem != vm.CurrentSystem {
+		t.Fatalf("managed Nix was not reused: %+v, %v", facts, err)
+	}
+	after, err := readFakeVM(server.directory)
+	if err != nil || after != vm {
+		t.Fatalf("managed Nix installation was changed: %+v, %v", after, err)
+	}
+}
+
 func TestNixReuseWaitsForStartup(t *testing.T) {
 	g, server := nixFixture(t)
 	vm, err := readFakeVM(server.directory)

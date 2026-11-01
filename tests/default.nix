@@ -122,6 +122,16 @@ let
       expected = true;
     };
 
+    testBootstrapUserCanUploadConfigurations = {
+      expr = builtins.elem "builder" guest.nix.settings.trusted-users;
+      expected = true;
+    };
+
+    testBootstrapTrustStaysOutOfParent = {
+      expr = builtins.elem "builder" parent.nix.settings.trusted-users;
+      expected = false;
+    };
+
     testCustomModuleIsEvaluatedForEachConfiguration = {
       expr = {
         parent = parent.environment.etc."message".text;

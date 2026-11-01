@@ -90,6 +90,9 @@ func TestCreateAndReuseVM(t *testing.T) {
 	if vm.Copies != 1 || vm.CopiedSystem != config.System {
 		t.Fatalf("guest configuration was not copied once: %+v", vm)
 	}
+	if vm.Activations != 1 || vm.CurrentSystem != config.System || vm.NixVersion != "2.34.9" {
+		t.Fatalf("guest configuration was not activated: %+v", vm)
+	}
 	if _, err := os.Stat(filepath.Join(otherHome, "fake-vm.json")); !errors.Is(err, os.ErrNotExist) {
 		t.Fatalf("runner used the inherited TART_HOME: %v", err)
 	}
@@ -116,6 +119,9 @@ func TestCreateAndReuseVM(t *testing.T) {
 	}
 	if vm.Copies != 2 || vm.CopiedSystem != config.System {
 		t.Fatalf("latest guest configuration was not copied once: %+v", vm)
+	}
+	if vm.Activations != 2 || vm.CurrentSystem != config.System {
+		t.Fatalf("latest guest configuration was not activated: %+v", vm)
 	}
 	contents, err := os.ReadFile(disk)
 	if err != nil || string(contents) != "guest changes" {

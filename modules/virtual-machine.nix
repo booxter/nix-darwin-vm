@@ -60,7 +60,8 @@ in
         defaultText = lib.literalExpression "the highest version in the selected installer's inventory";
         description = ''
           Installer release version. For the nix family this is also the Nix
-          version. Defaults to the newest release in the committed inventory.
+          version used for bootstrap. After activation, nix.package controls
+          managed Nix. Defaults to the newest release in the committed inventory.
         '';
       };
     };
@@ -93,6 +94,10 @@ in
       description = "Whether to open the virtual machine's display window.";
     };
   };
+
+  config.nix.settings.trusted-users = lib.mkIf config.nix.enable (
+    lib.mkAfter [ config.virtualisation.bootstrapUser ]
+  );
 
   config.system.build = {
     ipsw = pkgs.fetchurl {

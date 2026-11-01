@@ -179,6 +179,13 @@ func (s *sshTestServer) serveSession(channel ssh.Channel, requests <-chan *ssh.R
 			} else if vm.NixVersion != "" && !s.nixPending.Load() {
 				fmt.Fprintln(channel, "nix (Nix)", vm.NixVersion)
 			}
+		case queryCurrentSystem:
+			vm, err := readFakeVM(s.directory)
+			if err != nil {
+				status = 1
+			} else {
+				fmt.Fprintln(channel, vm.CurrentSystem)
+			}
 		case waitNixScript:
 			for s.nixPending.Load() {
 				time.Sleep(10 * time.Millisecond)
@@ -199,6 +206,11 @@ func (s *sshTestServer) serveSession(channel ssh.Channel, requests <-chan *ssh.R
 				fmt.Fprintln(channel.Stderr(), err)
 				status = 1
 			}
+		case activateSystemScript:
+			if err := s.activateSystem(channel); err != nil {
+				fmt.Fprintln(channel.Stderr(), err)
+				status = 1
+			}
 		case installPublicKey:
 			if err := s.installKey(channel); err != nil {
 				status = 1
@@ -214,6 +226,38 @@ func (s *sshTestServer) serveSession(channel ssh.Channel, requests <-chan *ssh.R
 		channel.SendRequest("exit-status", false, ssh.Marshal(struct{ Status uint32 }{status}))
 		return
 	}
+}
+
+func (s *sshTestServer) activateSystem(channel ssh.Channel) error {
+	input, err := io.ReadAll(channel)
+	if err != nil {
+		return err
+	}
+	system, password, ok := strings.Cut(string(input), "\n")
+	vm, err := readFakeVM(s.directory)
+	if err != nil {
+		return err
+	}
+	if !ok || strings.TrimSuffix(password, "\n") != vm.Password {
+		return errors.New("sudo: incorrect password")
+	}
+	if os.Getenv("NIX_DARWIN_VM_TEST_FAIL") == "activate" {
+		fmt.Fprintln(channel, "activation started")
+		return errors.New("fixture activation failed")
+	}
+	if vm.CopiedSystem != system {
+		return errors.New("configuration has not been copied")
+	}
+	vm.Activations++
+	if os.Getenv("NIX_DARWIN_VM_TEST_FAIL") != "activation-system" {
+		vm.CurrentSystem = system
+	}
+	vm.NixVersion = "2.34.9"
+	if os.Getenv("NIX_DARWIN_VM_TEST_FAIL") == "activation-nix" {
+		vm.NixVersion = ""
+	}
+	fmt.Fprintln(channel, "setting up /etc...")
+	return saveFakeVM(s.directory, vm)
 }
 
 func (s *sshTestServer) authorizeCopy(reader io.Reader) error {

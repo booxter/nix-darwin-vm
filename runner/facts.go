@@ -13,9 +13,14 @@ import (
 )
 
 type systemFacts struct {
-	MacOSVersion string
-	NixVersion   string
+	MacOSVersion  string
+	NixVersion    string
+	CurrentSystem string
 }
+
+const queryCurrentSystem = `if [ -L /run/current-system ]; then
+    /usr/bin/readlink /run/current-system
+fi`
 
 // Fact queries are fixed shell commands, interpreted locally or over SSH.
 type commandExecutor func(context.Context, string) ([]byte, error)
@@ -57,7 +62,12 @@ func (g guest) inspect(ctx context.Context) (systemFacts, error) {
 	if err != nil {
 		return systemFacts{}, fmt.Errorf("inspect guest: %w", err)
 	}
-	output, err := execute(ctx, queryNixVersion)
+	output, err := execute(ctx, queryCurrentSystem)
+	if err != nil {
+		return systemFacts{}, fmt.Errorf("inspect guest system: %w", err)
+	}
+	facts.CurrentSystem = strings.TrimSpace(string(output))
+	output, err = execute(ctx, queryNixVersion)
 	if err != nil {
 		return systemFacts{}, fmt.Errorf("inspect guest Nix: %w", err)
 	}

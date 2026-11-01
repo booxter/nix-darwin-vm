@@ -50,13 +50,21 @@ func (g guest) bootstrap(ctx context.Context, address string) error {
 }
 
 func (g guest) runSSH(ctx context.Context, address string, auth ssh.AuthMethod, command string, stdin io.Reader) ([]byte, error) {
+	var stdout, stderr bytes.Buffer
+	if err := g.executeSSH(ctx, address, auth, command, stdin, &stdout, &stderr); err != nil {
+		return nil, fmt.Errorf("SSH command: %w: %s", err, &stderr)
+	}
+	return stdout.Bytes(), nil
+}
+
+func (g guest) executeSSH(ctx context.Context, address string, auth ssh.AuthMethod, command string, stdin io.Reader, stdout, stderr io.Writer) error {
 	checkHostKey, err := g.hostKeyCallback()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	connection, err := g.dialer.DialContext(ctx, "tcp", address)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer connection.Close()
 
@@ -64,7 +72,7 @@ func (g guest) runSSH(ctx context.Context, address string, auth ssh.AuthMethod, 
 	// never sends an SSH banner. Cancellation closes the connection immediately.
 	deadline, _ := ctx.Deadline()
 	if err := connection.SetDeadline(deadline); err != nil {
-		return nil, err
+		return err
 	}
 	stop := context.AfterFunc(ctx, func() { connection.Close() })
 	defer stop()
@@ -75,23 +83,19 @@ func (g guest) runSSH(ctx context.Context, address string, auth ssh.AuthMethod, 
 	}
 	transport, channels, requests, err := ssh.NewClientConn(connection, address, config)
 	if err != nil {
-		return nil, fmt.Errorf("SSH handshake: %w", err)
+		return fmt.Errorf("SSH handshake: %w", err)
 	}
 	client := ssh.NewClient(transport, channels, requests)
 	defer client.Close()
 	session, err := client.NewSession()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer session.Close()
-	var stdout, stderr bytes.Buffer
 	session.Stdin = stdin
-	session.Stdout = &stdout
-	session.Stderr = &stderr
-	if err := session.Run(command); err != nil {
-		return nil, fmt.Errorf("SSH command: %w: %s", err, &stderr)
-	}
-	return stdout.Bytes(), nil
+	session.Stdout = stdout
+	session.Stderr = stderr
+	return session.Run(command)
 }
 
 func (g guest) hostKeyCallback() (ssh.HostKeyCallback, error) {

@@ -143,7 +143,11 @@ func (g *guest) waitReady(ctx context.Context, t tart) error {
 				lastError = g.bootstrap(ctx, g.address)
 			}
 			if lastError == nil {
-				return os.WriteFile(filepath.Join(g.directory, "provisioned"), nil, 0600)
+				if err := os.WriteFile(filepath.Join(g.directory, "provisioned"), nil, 0600); err != nil {
+					return err
+				}
+				g.configured = true
+				return nil
 			}
 		}
 		var addressError *net.ParseError

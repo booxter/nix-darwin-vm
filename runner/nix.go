@@ -30,7 +30,9 @@ var installNixScript string
 //go:embed wait-nix.sh
 var waitNixScript string
 
-const queryNixVersion = `if [ -e /nix/var/nix/profiles/default/bin/nix ]; then
+const queryNixVersion = `if [ -x /run/current-system/sw/bin/nix ]; then
+    /run/current-system/sw/bin/nix --version
+elif [ -x /nix/var/nix/profiles/default/bin/nix ]; then
     /nix/var/nix/profiles/default/bin/nix --version
 fi`
 
@@ -67,7 +69,8 @@ func (g guest) ensureNix(ctx context.Context) (systemFacts, error) {
 			return systemFacts{}, err
 		}
 	}
-	if facts.NixVersion != g.installer.Version {
+	// The installer pin applies until nix-darwin takes over Nix management.
+	if facts.CurrentSystem == "" && facts.NixVersion != g.installer.Version {
 		return systemFacts{}, fmt.Errorf("guest has Nix %q, requested %s; choose a fresh stateDirectory", facts.NixVersion, g.installer.Version)
 	}
 

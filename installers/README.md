@@ -16,8 +16,9 @@ pin `version` to keep that choice when updating this flake.
 
 The selected download is available as
 `virtualisation.vmVariant.system.build.nixInstaller`. Selecting an installer
-installs that release in a fresh guest. Later runs reuse a matching installation;
-choose a fresh state directory to change versions.
+installs that release in a fresh guest. After activation, `nix.package` controls
+Nix when `nix.enable` is enabled. Choose a fresh state directory to change the
+bootstrap installer.
 
 Update the inventory from the repository root:
 

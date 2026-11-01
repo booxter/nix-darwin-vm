@@ -38,6 +38,8 @@ type fakeVM struct {
 	Copies            int
 	TransferredSystem string
 	CopiedSystem      string
+	CurrentSystem     string
+	Activations       int
 }
 
 func TestMain(m *testing.M) {
