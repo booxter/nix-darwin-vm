@@ -1,0 +1,35 @@
+name: VM
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vm-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  integration:
+    runs-on: nix-vm-darwin
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Run VM scenarios
+        env:
+          TMPDIR: ${{ runner.temp }}/vm-tests
+        run: |
+          install -d -m 0700 "$TMPDIR"
+          nix --option post-build-hook '' run .#test-vm --no-update-lock-file --print-build-logs
+      - name: Upload VM logs
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: vm-logs
+          path: ${{ runner.temp }}/vm-tests/nix-darwin-vm-integration-*/run-*.log
+          if-no-files-found: ignore
+          retention-days: 7
