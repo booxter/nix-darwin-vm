@@ -36,10 +36,16 @@ in
   options.virtualisation = {
     bootstrapUser = lib.mkOption {
       type = lib.types.strMatching "[a-zA-Z_][a-zA-Z0-9_.-]*";
-      default = "vmadmin";
+      default =
+        if config.system.primaryUser != null then
+          config.system.primaryUser
+        else
+          # nix-darwin does not require a primary user.
+          "vmadmin";
       description = ''
         Administrator account created on the guest's first boot and used for
-        SSH provisioning. Changing it requires a fresh state directory.
+        SSH provisioning. Defaults to system.primaryUser when configured, or
+        vmadmin otherwise. Changing it requires a fresh state directory.
       '';
     };
 

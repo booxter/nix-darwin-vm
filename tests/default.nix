@@ -55,6 +55,11 @@ let
       }
     ];
   };
+  withPrimaryUser = minimal.extendModules {
+    modules = [
+      { system.primaryUser = "owner"; }
+    ];
+  };
 
   expectedIPSW =
     version:
@@ -116,6 +121,11 @@ let
         diskSize = 47683;
         graphics = true;
       };
+    };
+
+    testBootstrapUserDefaultsToPrimaryUser = {
+      expr = withPrimaryUser.config.virtualisation.vmVariant.virtualisation.bootstrapUser;
+      expected = "owner";
     };
 
     testVariantInheritsPackages = {
