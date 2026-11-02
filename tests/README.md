@@ -30,10 +30,13 @@ starts cleanup.
 
 ## GitHub Actions
 
-The `VM` workflow runs both scenarios on pull requests, pushes to `main`, and
-through **Actions → VM → Run workflow**. It uses the self-hosted
+The `CI` workflow calls the `VM` workflow on pull requests and pushes to `main`.
+Run it manually through **Actions → VM → Run workflow**. It uses the self-hosted
 `nix-vm-darwin` runner on `mmini`; formatter and ordinary checks use
 GitHub-hosted runners.
+
+Require the `required` status check in branch protection. It succeeds only when
+formatting, flake checks, and VM scenarios all succeed.
 
 The runner needs Nix, macOS 27 or newer, and an unlocked login keychain for its
 service account. Its host configuration is maintained in `booxter/nix`, under
