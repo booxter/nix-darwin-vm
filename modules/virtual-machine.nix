@@ -111,6 +111,7 @@ in
     vm = pkgs.writeShellApplication {
       name = "run-${config.networking.hostName}-vm";
       runtimeInputs = [
+        pkgs.darwin.DarwinTools
         pkgs.tart
         pkgs.nix
         pkgs.openssh

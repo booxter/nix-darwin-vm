@@ -277,6 +277,16 @@ else
   pkgs.runCommand "vm-module-interface" { } ''
     ${lib.getExe (withFixtureInputs minimal).config.system.build.vm} --help
     ${lib.getExe (withFixtureInputs customized).config.system.build.vm} --help
+
+    if PATH= ${lib.getExe (withFixtureInputs customized).config.system.build.vm} >vm-output 2>&1; then
+      echo "VM launcher unexpectedly accepted an unsupported guest" >&2
+      exit 1
+    fi
+    if ! grep -Fq "guest provisioning requires macOS 27 or newer" vm-output; then
+      cat vm-output >&2
+      exit 1
+    fi
+
     for launcher in \
       ${lib.getExe minimal.config.system.build.vmSsh} \
       ${lib.getExe customized.config.system.build.vmSsh}; do
