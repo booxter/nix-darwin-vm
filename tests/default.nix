@@ -7,6 +7,7 @@ let
   inherit (pkgs) lib;
   images = builtins.fromJSON (builtins.readFile ../images/macos.json);
   installers = builtins.fromJSON (builtins.readFile ../installers/nix.json);
+  defaultVersion = minimal.config.virtualisation.vmVariant.virtualisation.macosVersion;
   defaultInstaller = minimal.config.virtualisation.vmVariant.virtualisation.nixInstaller;
 
   physical = nix-darwin.lib.darwinSystem {
@@ -99,7 +100,6 @@ let
     testDefaultSettings = {
       expr = {
         inherit (minimal.config.virtualisation.vmVariant.virtualisation)
-          macosVersion
           bootstrapUser
           stateDirectory
           cores
@@ -108,7 +108,6 @@ let
           ;
       };
       expected = {
-        macosVersion = "27.2";
         bootstrapUser = "vmadmin";
         stateDirectory = "./minimal-vm";
         cores = 4;
@@ -184,9 +183,14 @@ let
       expected = "./renamed-vm";
     };
 
+    testDefaultVersionIsNewest = {
+      expr = builtins.all (version: !lib.versionOlder defaultVersion version) (builtins.attrNames images);
+      expected = true;
+    };
+
     testDefaultVersionSelectsPinnedImage = {
       expr = minimal.config.virtualisation.vmVariant.system.build.ipsw.outPath;
-      expected = (expectedIPSW "27.2").outPath;
+      expected = (expectedIPSW defaultVersion).outPath;
     };
 
     testCustomVersionSelectsPinnedImage = {

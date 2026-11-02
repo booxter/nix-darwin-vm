@@ -6,6 +6,7 @@
 }:
 let
   images = builtins.fromJSON (builtins.readFile ../images/macos.json);
+  imageVersions = lib.sort lib.versionOlder (builtins.attrNames images);
   image = images.${config.virtualisation.macosVersion};
   installers = builtins.fromJSON (builtins.readFile ../installers/nix.json);
   installer = config.virtualisation.nixInstaller;
@@ -42,9 +43,13 @@ in
     };
 
     macosVersion = lib.mkOption {
-      type = lib.types.enum (builtins.attrNames images);
-      default = "27.2";
-      description = "Exact macOS version of the Apple IPSW restore image to use.";
+      type = lib.types.enum imageVersions;
+      default = lib.last imageVersions;
+      defaultText = lib.literalExpression "the highest version in the macOS image inventory";
+      description = ''
+        Exact macOS version of the Apple IPSW restore image to use.
+        Defaults to the newest release in the committed inventory.
+      '';
     };
 
     nixInstaller = {

@@ -9,9 +9,10 @@ Select an inventory entry in a VM variant:
 virtualisation.vmVariant.virtualisation.macosVersion = "27.2";
 ```
 
-The default is pinned to `27.2`. Nix fetches and verifies the selected IPSW when
-building the VM launcher, and passes its store path to the runner. Updating the
-inventory does not change the default version.
+The default is the highest version in the committed inventory. Pin `macosVersion`
+to keep that choice when updating this flake. Nix fetches and verifies the selected
+IPSW when building the VM launcher, and passes its store path to the runner.
+Choose a fresh state directory to change the macOS version of an existing VM.
 
 Run the updater from the repository root:
 
