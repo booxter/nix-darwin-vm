@@ -188,7 +188,7 @@ func TestManagedNixDoesNotRequireInstallerVersion(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	vm.NixVersion = "2.34.9"
+	vm.NixVersion = "2.35.3+15"
 	vm.CurrentSystem = "/nix/store/active-system"
 	if err := saveFakeVM(server.directory, vm); err != nil {
 		t.Fatal(err)

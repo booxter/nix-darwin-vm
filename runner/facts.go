@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os/exec"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -17,6 +18,9 @@ type systemFacts struct {
 	NixVersion    string
 	CurrentSystem string
 }
+
+// Managed Nix packages can include prerelease or build suffixes.
+var guestNixVersionPattern = regexp.MustCompile(`^[0-9]+(\.[0-9]+)+[a-zA-Z0-9.+-]*$`)
 
 const queryCurrentSystem = `if [ -L /run/current-system ]; then
     /usr/bin/readlink /run/current-system
@@ -73,7 +77,7 @@ func (g guest) inspect(ctx context.Context) (systemFacts, error) {
 	}
 	if version := strings.TrimSpace(string(output)); version != "" {
 		version, ok := strings.CutPrefix(version, "nix (Nix) ")
-		if !ok || !nixVersionPattern.MatchString(version) {
+		if !ok || !guestNixVersionPattern.MatchString(version) {
 			return systemFacts{}, fmt.Errorf("invalid guest Nix version %q", output)
 		}
 		facts.NixVersion = version
