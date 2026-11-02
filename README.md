@@ -1,47 +1,58 @@
 # nix-darwin-vm
 
-Import `darwinModules.vm` into a nix-darwin configuration to expose
-`config.system.build.vm` and `config.system.build.vmSsh` for starting and
-connecting to a macOS VM running the variant's nix-darwin configuration.
+Run your nix-darwin configuration in a local macOS VM using Tart. The VM inherits
+your configuration; `virtualisation.vmVariant` lets you customize it for the guest
+without changing the host configuration.
 
-Configure the VM variant:
+## Requirements
+
+- An Apple silicon Mac with Nix.
+- macOS 27 or newer on both host and guest, for automatic account provisioning.
+
+## Setup
+
+Add this input to your existing flake:
 
 ```nix
-virtualisation.vmVariant.virtualisation = {
-  macosVersion = "27.2";
-  bootstrapUser = "vmadmin";
-  stateDirectory = "./example-vm";
-  cores = 4;
-  memorySize = 4096;
-  graphics = true;
+inputs.nix-darwin-vm = {
+  url = "github:booxter/nix-darwin-vm";
+  inputs.nixpkgs.follows = "nixpkgs";
 };
 ```
 
-Tart is marked unfree in nixpkgs. Allow it through your configuration's package
-policy, for example:
+Import its module in your `darwinConfigurations.<name>` module list. Here,
+`inputs` is the argument to your flake's `outputs` function:
 
 ```nix
-nixpkgs.config.allowUnfreePredicate = package: lib.getName package == "tart";
+modules = [
+  inputs.nix-darwin-vm.darwinModules.vm
+  # Your existing modules.
+];
 ```
 
-An Apple silicon Mac and macOS 27 or newer on both host and guest are required.
-Start the VM:
+Allow Tart, which nixpkgs marks as unfree, in your nix-darwin configuration:
+
+```nix
+{ lib, ... }:
+{
+  nixpkgs.config.allowUnfreePredicate = package: lib.getName package == "tart";
+}
+```
+
+## Start and connect
+
+Replace `example` with your configuration's name:
 
 ```sh
 nix run .#darwinConfigurations.example.config.system.build.vm
 ```
 
-Add `-- --interactive` to attach a guest shell in the same terminal after
-activation. Logging out leaves the VM running; press Enter to reconnect, or
-Ctrl-C or Ctrl-D at the reconnect prompt to stop the VM. Interactive mode is
-independent of `graphics` and requires a terminal. Omit it for CI.
+The build downloads the selected macOS restore image (IPSW) and Nix installer,
+and builds the guest configuration on the host. The first run creates the guest
+disk and an administrator account (`vmadmin` by default), installs
+Nix for all users, then copies and activates the configuration over SSH.
 
-The first build downloads the selected Apple IPSW and Nix installer. The first
-run creates a 50 GB guest disk, creates the `bootstrapUser` administrator account
-(default `vmadmin`), and installs Nix for all users.
-The VM variant's configuration is built on the host, copied, and activated at
-startup. Later runs transfer only missing store paths.
-Wait for the readiness message, then connect from another terminal:
+Wait for `Ready: guest configuration activated`, then connect from another terminal:
 
 ```sh
 nix run .#darwinConfigurations.example.config.system.build.vmSsh
@@ -50,43 +61,73 @@ nix run .#darwinConfigurations.example.config.system.build.vmSsh
 nix run .#darwinConfigurations.example.config.system.build.vmSsh -- uname -a
 ```
 
-`vmSsh` requires a running VM. It uses the VM's dedicated SSH key and does not
-use your SSH configuration or agent.
+`vmSsh` requires a running VM. It uses a dedicated SSH key and ignores your SSH
+configuration and agent. With a relative state path, run both launchers from the
+same directory.
 
-State defaults to `./<hostname>-vm`, relative to the working directory. Run both
-launchers from the same directory when using a relative state path. Account
-credentials and SSH keys are stored in `<stateDirectory>/credentials`; use
-`credentials/password` for guest login and sudo. Keep this directory private.
+To attach a shell directly after activation:
 
-Copied configurations are retained in the guest profile
-`~/.local/state/nix-darwin-vm/system`. The bootstrap account is trusted by the
-guest's Nix daemon for configuration uploads.
+```sh
+nix run .#darwinConfigurations.example.config.system.build.vm -- --interactive
+```
 
-Later runs reuse the disk, credentials, and Nix installation, and apply CPU and
-memory settings.
-Choose a fresh state directory to change `bootstrapUser`, `macosVersion`, or the
-bootstrap Nix installer. After activation, the configuration's `nix.package`
-controls Nix when `nix.enable` is enabled. Audio and clipboard sharing are disabled.
+After logout, press Enter to reconnect, or Ctrl-C or Ctrl-D at the reconnect
+prompt to stop the VM. Interactive mode requires a terminal and works with or
+without a display window. Omit it for CI.
 
-Ctrl-C stops the VM during startup or at the reconnect prompt and retains its
-state. Inside an attached shell, Ctrl-C goes to the guest. Use macOS's Shut Down
-command inside the guest for a clean shutdown.
+Ctrl-C stops the launcher and VM, preserving state. Inside an attached shell,
+Ctrl-C goes to the guest. For a clean shutdown, use macOS's Shut Down command
+inside the guest.
 
-The [image inventory guide](images/README.md) describes the pinned IPSWs and their
-updater. The [installer inventory guide](installers/README.md) describes Nix
-installer selection. Run `nix fmt -- --ci` and `nix flake check` for formatting
-and fast tests. Run `nix run .#test-vm` for the opt-in
-[real VM integration scenarios](tests/README.md).
+## Configure the guest
 
-The `Update flake inputs` workflow updates `flake.lock` every Monday at 00:00 UTC
-or through **Actions → Update flake inputs → Run workflow**. It maintains a PR
-on `ci/flake-update` and enables auto-merge. Configure a `CI_PR_TOKEN` repository
-secret with contents and pull requests write permissions, enable repository
-auto-merge, and require the `required` status check in branch protection so updates
-merge only after CI passes.
+Set VM options inside your nix-darwin configuration (with `pkgs` in scope):
 
-The `Update inventories` workflow runs every Monday at 00:17 UTC or manually
-through Actions. Separate jobs update Nix installers and macOS images, each with
-its own PR and auto-merge using the same `CI_PR_TOKEN`. Both defaults follow the
-newest versions in their inventories, and PR CI runs the real VM scenarios with
-those defaults before merging when the `required` check is enforced.
+```nix
+virtualisation.vmVariant = {
+  virtualisation = {
+    cores = 4;
+    memorySize = 4096;
+    graphics = false;
+    stateDirectory = "./example-vm";
+  };
+
+  # Ordinary nix-darwin options also work here.
+  environment.systemPackages = [ pkgs.hello ];
+};
+```
+
+| Option under `virtualisation.vmVariant.virtualisation` | Default |
+| --- | --- |
+| `cores` | `4` |
+| `memorySize` | `4096` MiB |
+| `graphics` | `true` (opens a display window) |
+| `stateDirectory` | `./<hostname>-vm`, relative to the launcher's working directory |
+| `bootstrapUser` | `"vmadmin"` |
+| `macosVersion` | Newest version in the [image inventory](images/README.md) |
+| `nixInstaller` | Newest official Nix release in the [installer inventory](installers/README.md) |
+
+Audio and clipboard sharing are disabled.
+
+## State and subsequent runs
+
+Each state directory holds one VM's disk and credentials. Later runs reuse the
+disk and Nix installation, apply CPU and memory settings, and activate the current
+configuration. Only missing store paths are transferred.
+
+Use a fresh `stateDirectory` to change the bootstrap account, macOS restore image,
+or bootstrap Nix installer. Selecting a different image does not upgrade an
+existing guest. After activation, `nix.package` controls Nix when `nix.enable` is
+enabled.
+
+Guest login and sudo use the password in `<stateDirectory>/credentials/password`.
+That directory also contains SSH keys; keep it private.
+
+The bootstrap account is trusted by the guest's Nix daemon so it can upload
+configurations. Uploaded configurations are retained in the guest profile
+`~/.local/state/nix-darwin-vm/system` to protect them from garbage collection.
+
+## Development
+
+See [contributing](CONTRIBUTING.md) for checks and CI maintenance, and
+[VM integration tests](tests/README.md) for testing with real guests.

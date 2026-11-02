@@ -1,38 +1,42 @@
 # macOS restore images
 
-`macos.json` pins Apple IPSW restore images by exact macOS version, with their
-build identifiers, Apple download URLs, and SHA-256 hashes in Nix SRI format.
+## Select a version
 
-Select an inventory entry in a VM variant:
+The default is the newest version in [macos.json](macos.json). Pin a version to
+keep it when updating this flake:
 
 ```nix
 virtualisation.vmVariant.virtualisation.macosVersion = "27.2";
 ```
 
-The default is the highest version in the committed inventory. Pin `macosVersion`
-to keep that choice when updating this flake. Nix fetches and verifies the selected
-IPSW when building the VM launcher, and passes its store path to the runner.
-Choose a fresh state directory to change the macOS version of an existing VM.
+Nix downloads and verifies the selected IPSW when building the launcher. Use a
+fresh state directory to boot a different image; this option does not upgrade an
+existing guest. Automatic provisioning requires macOS 27 or newer, even though
+the inventory includes older releases.
 
-Run the updater from the repository root:
+## Update the inventory
+
+From the repository root:
 
 ```sh
 nix run .#update-images
 ```
 
-The updater uses the ipsw.me `VirtualMac2,1` catalog for discovery, including
-historical releases. It requires HTTPS image URLs on `updates.cdn-apple.com`
-and filenames matching the advertised macOS version and build. For each image,
-it sends a HEAD request to Apple and compares `x-amz-meta-digest-sha256` with the
-catalog's checksum. Redirects are rejected. No IPSW contents are downloaded.
+Review the diff before committing. Each entry pins a macOS version to a build,
+Apple download URL, and SHA-256 hash in Nix SRI format.
 
-Previously recorded releases are retained and checked again even when they
-disappear from the discovery catalog. Changes to an existing version's build,
-URL, or checksum require manual review. Missing images, missing or mismatched
-hash headers, and network failures abort the update. The inventory is replaced
-atomically only after every record passes verification.
+The updater discovers releases through the ipsw.me `VirtualMac2,1` catalog and
+checks each image against Apple:
 
-Review the generated diff before committing it. The recorded hashes come from
-Apple's response metadata; Nix must still verify the image contents when fetching
-an IPSW. Catalog membership does not establish that an image can be restored on
-every host.
+- The URL must use HTTPS on `updates.cdn-apple.com`, with no redirects.
+- The filename must match the version and build.
+- Apple's `x-amz-meta-digest-sha256` response header must match the catalog hash.
+
+It uses HEAD requests without downloading IPSWs. Nix verifies the actual image
+contents when fetching them. A catalog entry does not guarantee that the image
+can be restored on every host.
+
+Previously recorded entries are retained and rechecked, even if absent from the
+catalog. Changes to an existing version's build, URL, or hash abort the update
+and require manual review. Missing images or hash headers, checksum mismatches,
+and network failures also leave the inventory unchanged.

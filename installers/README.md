@@ -1,6 +1,9 @@
 # Nix installers
 
-Select an installer in the VM variant:
+## Select a version
+
+The default is the newest version in [nix.json](nix.json). Pin a version to keep
+it when updating this flake:
 
 ```nix
 virtualisation.vmVariant.virtualisation.nixInstaller = {
@@ -9,24 +12,25 @@ virtualisation.vmVariant.virtualisation.nixInstaller = {
 };
 ```
 
-The `nix` family uses the installer bundled in official Nix release tarballs.
-Its installer version is also the Nix version. Only ARM Darwin artifacts are
-included. The default is the highest version in the committed inventory;
-pin `version` to keep that choice when updating this flake.
+The `nix` family uses official Nix release tarballs for ARM Darwin. The installer
+version is the Nix version installed in a fresh guest. The download is exposed as
+`virtualisation.vmVariant.system.build.nixInstaller`.
 
-The selected download is available as
-`virtualisation.vmVariant.system.build.nixInstaller`. Selecting an installer
-installs that release in a fresh guest. After activation, `nix.package` controls
-Nix when `nix.enable` is enabled. Choose a fresh state directory to change the
-bootstrap installer.
+Use a fresh state directory to change the bootstrap installer. After activation,
+`nix.package` controls Nix when `nix.enable` is enabled.
 
-Update the inventory from the repository root:
+## Update the inventory
+
+From the repository root:
 
 ```sh
 nix run .#update-nix-installers
 ```
 
-The updater discovers stable releases in the official release bucket and reads
-their published SHA-256 checksums. Historical entries are retained and checked
-again. Missing recorded artifacts, changed pins, and failed requests abort the
-update. Review the generated diff before committing it.
+Review the diff before committing. The updater discovers stable releases in the
+official Nix release bucket and reads their published SHA-256 checksums. Releases
+without ARM Darwin artifacts are skipped.
+
+Previously recorded entries are retained and rechecked. Missing recorded
+artifacts, changed pins, and failed requests abort the update without replacing
+the inventory.
