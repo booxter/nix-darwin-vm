@@ -183,6 +183,10 @@ func runVM(ctx context.Context, config configuration, stdout, stderr io.Writer, 
 }
 
 func (t tart) runGuest(ctx context.Context, args []string, g guest, input *os.File) error {
+	if err := t.waitStorage(ctx); err != nil {
+		return err
+	}
+
 	session, cancel := context.WithCancel(ctx)
 	defer cancel()
 	command := t.command(session, args...)

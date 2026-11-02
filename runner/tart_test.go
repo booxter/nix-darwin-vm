@@ -96,7 +96,7 @@ func TestCreateAndReuseVM(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(otherHome, "fake-vm.json")); !errors.Is(err, os.ErrNotExist) {
 		t.Fatalf("runner used the inherited TART_HOME: %v", err)
 	}
-	disk := filepath.Join(config.StateDirectory, "disk")
+	disk := filepath.Join(config.StateDirectory, "vms", vmName, "disk.img")
 	if err := os.WriteFile(disk, []byte("guest changes"), 0600); err != nil {
 		t.Fatal(err)
 	}

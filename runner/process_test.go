@@ -135,8 +135,14 @@ func fakeTart() int {
 			version = "27.2"
 		}
 		vm = fakeVM{Name: options.Arg(0), State: "stopped", IPSW: *ipsw, Creations: vm.Creations + 1, MacOSVersion: version}
-		if err := os.WriteFile(filepath.Join(home, "disk"), []byte("fresh disk"), 0600); err != nil {
+		directory := filepath.Join(home, "vms", vm.Name)
+		if err := os.MkdirAll(directory, 0700); err != nil {
 			return 1
+		}
+		for _, name := range []string{"nvram.bin", "disk.img"} {
+			if err := os.WriteFile(filepath.Join(directory, name), []byte("fresh disk"), 0600); err != nil {
+				return 1
+			}
 		}
 	case "set":
 		if len(args) < 2 || args[1] != vm.Name {
