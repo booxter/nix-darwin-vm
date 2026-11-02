@@ -30,9 +30,10 @@ starts cleanup.
 
 ## GitHub Actions
 
-The `VM` workflow runs both scenarios on pushes to `main` and through
-**Actions → VM → Run workflow**. It uses the self-hosted `nix-vm-darwin` runner
-on `mmini`; formatter and ordinary checks use GitHub-hosted runners.
+The `VM` workflow runs both scenarios on pull requests, pushes to `main`, and
+through **Actions → VM → Run workflow**. It uses the self-hosted
+`nix-vm-darwin` runner on `mmini`; formatter and ordinary checks use
+GitHub-hosted runners.
 
 The runner needs Nix, macOS 27 or newer, and an unlocked login keychain for its
 service account. Its host configuration is maintained in `booxter/nix`, under
