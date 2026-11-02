@@ -196,6 +196,7 @@ func (v *integrationVM) expectSSH(command, expected string) {
 func (v *integrationVM) verify(fixture integrationFixture) {
 	v.t.Helper()
 	v.expectSSH("id -un", v.fixtures.User)
+	v.expectSSH("sudo -k -n id -u", "0")
 	v.expectSSH("cat /etc/vm-test", fixture.Message)
 	v.expectSSH("readlink /run/current-system", fixture.System)
 	v.expectSSH("/run/current-system/sw/bin/nix --version", "nix (Nix) "+fixture.NixVersion)

@@ -126,8 +126,10 @@ or bootstrap Nix installer. Selecting a different image does not upgrade an
 existing guest. After activation, `nix.package` controls Nix when `nix.enable` is
 enabled.
 
-Guest login and sudo use the password in `<stateDirectory>/credentials/password`.
-That directory also contains SSH keys; keep it private.
+Guest login uses the password in `<stateDirectory>/credentials/password`.
+Provisioning also uses this password for sudo until the first activation enables
+passwordless sudo for the bootstrap account. That directory also contains SSH
+keys; keep it private.
 
 The bootstrap account is trusted by the guest's Nix daemon so it can upload
 configurations. Uploaded configurations are retained in the guest profile

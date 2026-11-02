@@ -116,6 +116,10 @@ in
     lib.mkAfter [ config.virtualisation.bootstrapUser ]
   );
 
+  config.security.sudo.extraConfig = ''
+    ${config.virtualisation.bootstrapUser} ALL=(ALL) NOPASSWD: ALL
+  '';
+
   config.system.build = {
     ipsw = pkgs.fetchurl {
       inherit (image) url hash;
