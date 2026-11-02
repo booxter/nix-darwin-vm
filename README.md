@@ -88,6 +88,7 @@ virtualisation.vmVariant = {
   virtualisation = {
     cores = 4;
     memorySize = 4096;
+    diskSize = 64 * 1024;
     graphics = false;
     stateDirectory = "./example-vm";
   };
@@ -101,6 +102,7 @@ virtualisation.vmVariant = {
 | --- | --- |
 | `cores` | `4` |
 | `memorySize` | `4096` MiB |
+| `diskSize` | `47683` MiB (50 decimal GB after rounding) |
 | `graphics` | `true` (opens a display window) |
 | `stateDirectory` | `./<hostname>-vm`, relative to the launcher's working directory |
 | `bootstrapUser` | `"vmadmin"` |
@@ -108,6 +110,10 @@ virtualisation.vmVariant = {
 | `nixInstaller` | Newest official Nix release in the [installer inventory](installers/README.md) |
 
 Audio and clipboard sharing are disabled.
+
+`diskSize` is in MiB, rounded up to whole decimal GB for Tart. It applies only
+when creating a VM; changing it does not resize an existing disk. Use a fresh
+`stateDirectory` to select a different disk size.
 
 ## State and subsequent runs
 

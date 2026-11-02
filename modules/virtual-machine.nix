@@ -20,6 +20,7 @@ let
       bootstrapUser
       cores
       memorySize
+      diskSize
       graphics
       stateDirectory
       ;
@@ -91,6 +92,17 @@ in
       type = lib.types.ints.positive;
       default = 4096;
       description = "Memory size of the virtual machine in MiB (1024 × 1024 bytes).";
+    };
+
+    diskSize = lib.mkOption {
+      type = lib.types.ints.positive;
+      # Preserve Tart's default of 50 decimal GB after rounding to whole GB.
+      default = builtins.div (50 * 1000 * 1000 * 1000) (1024 * 1024);
+      description = ''
+        Disk size of the virtual machine in MiB (1024 × 1024 bytes), rounded
+        up to whole decimal GB for Tart. Applies only when creating a new VM;
+        use a fresh stateDirectory to change it.
+      '';
     };
 
     graphics = lib.mkOption {

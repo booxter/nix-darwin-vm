@@ -152,7 +152,11 @@ func runVM(ctx context.Context, config configuration, stdout, stderr io.Writer, 
 	}
 	if !exists {
 		fmt.Fprintf(stdout, "Creating macOS VM in %s\n", config.StateDirectory)
-		if err := t.command(ctx, "create", "--from-ipsw", config.IPSW, vmName).Run(); err != nil {
+		// Tart takes whole decimal GB; round up so the disk is never too small.
+		diskSizeGB := (int64(config.DiskSize)*1024*1024 + 1000*1000*1000 - 1) / (1000 * 1000 * 1000)
+		if err := t.command(ctx, "create", "--from-ipsw", config.IPSW,
+			"--disk-size", strconv.FormatInt(diskSizeGB, 10), vmName,
+		).Run(); err != nil {
 			return fmt.Errorf("create VM: %w", err)
 		}
 	}

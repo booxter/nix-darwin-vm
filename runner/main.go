@@ -22,6 +22,7 @@ type configuration struct {
 	BootstrapUser  string       `json:"bootstrapUser"`
 	Cores          int          `json:"cores"`
 	MemorySize     int          `json:"memorySize"`
+	DiskSize       int          `json:"diskSize"`
 	MacOSVersion   string       `json:"macosVersion"`
 	Graphics       bool         `json:"graphics"`
 	IPSW           string       `json:"ipsw"`
@@ -67,6 +68,10 @@ func loadConfiguration(path string) (configuration, error) {
 	}
 	if !filepath.IsAbs(config.System) {
 		return config, errors.New("system must be an absolute store path")
+	}
+	// Tart accepts a UInt16 count of decimal GB, rounded up from MiB.
+	if config.DiskSize <= 0 || config.DiskSize > 65535*1000*1000*1000/(1024*1024) {
+		return config, errors.New("diskSize must be positive (MiB) and fit within Tart's 65535 GB limit")
 	}
 
 	config.StateDirectory, err = filepath.Abs(config.StateDirectory)
