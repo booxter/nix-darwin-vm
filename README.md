@@ -77,3 +77,10 @@ updater. The [installer inventory guide](installers/README.md) describes Nix
 installer selection. Run `nix fmt -- --ci` and `nix flake check` for formatting
 and fast tests. Run `nix run .#test-vm` for the opt-in
 [real VM integration scenarios](tests/README.md).
+
+The `Update flake inputs` workflow updates `flake.lock` every Monday at 00:00 UTC
+or through **Actions → Update flake inputs → Run workflow**. It maintains a PR
+on `ci/flake-update` and enables auto-merge. Configure a `CI_PR_TOKEN` repository
+secret with contents and pull requests write permissions, enable repository
+auto-merge, and require the `required` status check in branch protection so updates
+merge only after CI passes.
