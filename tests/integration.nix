@@ -70,8 +70,10 @@ pkgs.writeShellApplication {
   name = "test-vm";
   runtimeInputs = [ pkgs.unixtools.script ];
   text = ''
+    # Retain both scenarios' closures while Nix GC scans the test process environment.
+    export NIX_DARWIN_VM_TEST_CONFIG=${fixtures}
     exec ${driver}/bin/vm-integration-tests \
       -test.v -test.timeout=45m -test.run=TestIntegration \
-      -integration-config ${fixtures} "$@"
+      -integration-config "$NIX_DARWIN_VM_TEST_CONFIG" "$@"
   '';
 }

@@ -122,7 +122,9 @@ in
         pkgs.openssh
       ];
       text = ''
-        exec ${lib.getExe runner} --config ${configuration} "$@"
+        # Nix GC scans process environments; retain the configuration and its closure.
+        export NIX_DARWIN_VM_CONFIG=${configuration}
+        exec ${lib.getExe runner} --config "$NIX_DARWIN_VM_CONFIG" "$@"
       '';
     };
 
