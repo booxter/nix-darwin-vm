@@ -167,18 +167,23 @@ func (p *integrationProcess) expectExit(t *testing.T, code int) {
 	}
 }
 
-func (v *integrationVM) ssh(command string, input io.Reader) string {
-	v.t.Helper()
+func (v *integrationVM) runSSH(command string, input io.Reader) (string, error) {
 	ctx, cancel := context.WithTimeout(v.ctx, 30*time.Second)
 	defer cancel()
 	client := exec.CommandContext(ctx, v.fixtures.Initial.SSH, command)
 	client.Dir = v.directory
 	client.Stdin = input
 	output, err := client.CombinedOutput()
+	return strings.TrimSpace(string(output)), err
+}
+
+func (v *integrationVM) ssh(command string, input io.Reader) string {
+	v.t.Helper()
+	output, err := v.runSSH(command, input)
 	if err != nil {
 		v.t.Fatalf("guest command failed: %v\n%s", err, output)
 	}
-	return strings.TrimSpace(string(output))
+	return output
 }
 
 func (v *integrationVM) expectSSH(command, expected string) {
@@ -216,7 +221,12 @@ func (v *integrationVM) shutdown() {
 	if err != nil {
 		v.t.Fatal(err)
 	}
-	v.ssh("sudo -S -p '' /sbin/shutdown -h now", strings.NewReader(string(password)+"\n"))
+	output, err := v.runSSH("sudo -S -p '' /sbin/shutdown -h now", strings.NewReader(string(password)+"\n"))
+	// The guest can stop sshd before OpenSSH receives the command's exit status.
+	// The runner exit and reachability checks below determine whether shutdown succeeded.
+	if err != nil && exitCode(err) != 255 {
+		v.t.Fatalf("guest shutdown failed: %v\n%s", err, output)
+	}
 	v.process.expectExit(v.t, 0)
 	v.expectStopped()
 }
