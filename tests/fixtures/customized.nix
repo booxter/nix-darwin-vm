@@ -31,6 +31,7 @@
         stateDirectory = "./custom vm";
         cores = 2;
         memorySize = 8192;
+        diskSize = 64 * 1024;
         graphics = false;
       };
 

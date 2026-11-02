@@ -104,6 +104,7 @@ let
           stateDirectory
           cores
           memorySize
+          diskSize
           graphics
           ;
       };
@@ -112,6 +113,7 @@ let
         stateDirectory = "./minimal-vm";
         cores = 4;
         memorySize = 4096;
+        diskSize = 47683;
         graphics = true;
       };
     };
@@ -165,6 +167,7 @@ let
           stateDirectory
           cores
           memorySize
+          diskSize
           graphics
           ;
       };
@@ -174,6 +177,7 @@ let
         stateDirectory = "./custom vm";
         cores = 2;
         memorySize = 8192;
+        diskSize = 64 * 1024;
         graphics = false;
       };
     };

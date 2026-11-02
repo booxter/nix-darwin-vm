@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -34,6 +35,7 @@ func TestLoadConfiguration(t *testing.T) {
 		"bootstrapUser": "builder",
 		"cores": 2,
 		"memorySize": 8192,
+		"diskSize": 65536,
 		"macosVersion": "27.2",
 		"graphics": false,
 		"ipsw": "/nix/store/example.ipsw",
@@ -51,6 +53,7 @@ func TestLoadConfiguration(t *testing.T) {
 		BootstrapUser:  "builder",
 		Cores:          2,
 		MemorySize:     8192,
+		DiskSize:       65536,
 		MacOSVersion:   "27.2",
 		Graphics:       false,
 		IPSW:           "/nix/store/example.ipsw",
@@ -60,6 +63,19 @@ func TestLoadConfiguration(t *testing.T) {
 	}
 	if got != want {
 		t.Fatalf("got %+v, want %+v", got, want)
+	}
+
+	for _, size := range []int{0, -1, 65535*1000*1000*1000/(1024*1024) + 1} {
+		invalid := want
+		invalid.DiskSize = size
+		data, err := json.Marshal(invalid)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, err = loadConfiguration(writeConfiguration(t, string(data)))
+		if err == nil || !strings.Contains(err.Error(), "diskSize must be positive") {
+			t.Fatalf("diskSize %d: got %v, want disk size validation error", size, err)
+		}
 	}
 }
 
@@ -74,6 +90,7 @@ func TestRelativeStateDirectory(t *testing.T) {
 		"bootstrapUser": "builder",
 		"cores": 4,
 		"memorySize": 4096,
+		"diskSize": 47683,
 		"ipsw": "/nix/store/example.ipsw",
 		"system": "/nix/store/example-system",
 		"nixInstaller": {"type": "nix", "version": "2.35.4", "path": "/nix/store/installer.tar.xz"},

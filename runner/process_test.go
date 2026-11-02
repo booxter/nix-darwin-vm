@@ -24,6 +24,7 @@ type fakeVM struct {
 	IPSW              string
 	Cores             int
 	Memory            int
+	DiskSizeGB        int
 	Graphics          bool
 	Creations         int
 	Runs              int
@@ -127,6 +128,7 @@ func fakeTart() int {
 	case "create":
 		options := flag.NewFlagSet("create", flag.ContinueOnError)
 		ipsw := options.String("from-ipsw", "", "")
+		diskSize := options.Int("disk-size", 50, "")
 		if err := options.Parse(args[1:]); err != nil || options.NArg() != 1 {
 			return 2
 		}
@@ -135,6 +137,7 @@ func fakeTart() int {
 			version = "27.2"
 		}
 		vm = fakeVM{Name: options.Arg(0), State: "stopped", IPSW: *ipsw, Creations: vm.Creations + 1, MacOSVersion: version}
+		vm.DiskSizeGB = *diskSize
 		directory := filepath.Join(home, "vms", vm.Name)
 		if err := os.MkdirAll(directory, 0700); err != nil {
 			return 1
@@ -242,6 +245,7 @@ func tartFixture(t *testing.T) vmFixture {
 	config := configuration{
 		Name: "example", Cores: 2, MemorySize: 4096, Graphics: false, MacOSVersion: "27.2",
 		BootstrapUser: "vmadmin",
+		DiskSize:      47683,
 		IPSW:          "/nix/store/example.ipsw", StateDirectory: filepath.Join(t.TempDir(), "VM's 100% state"),
 		NixInstaller: nixInstaller{Type: "nix", Version: "2.35.4", Path: nixArchive(t, "2.35.4")},
 		System:       "/nix/store/fixture-system",

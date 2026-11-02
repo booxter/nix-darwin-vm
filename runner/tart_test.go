@@ -87,6 +87,9 @@ func TestCreateAndReuseVM(t *testing.T) {
 	if vm.Cores != 2 || vm.Memory != 4096 || vm.Graphics || !vm.KeyInstalled || vm.Password == "" {
 		t.Fatalf("unexpected initial VM: %+v", vm)
 	}
+	if vm.DiskSizeGB != 50 {
+		t.Fatalf("default disk size = %d GB, want 50", vm.DiskSizeGB)
+	}
 	if vm.Copies != 1 || vm.CopiedSystem != config.System {
 		t.Fatalf("guest configuration was not copied once: %+v", vm)
 	}
@@ -104,6 +107,7 @@ func TestCreateAndReuseVM(t *testing.T) {
 	config.Name = "renamed"
 	config.IPSW = "/nix/store/another.ipsw"
 	config.Cores = 4
+	config.DiskSize = 64 * 1024
 	config.Graphics = true
 	config.System = "/nix/store/changed-system"
 	// Reuse must authenticate with the key, without needing the password again.
@@ -117,6 +121,9 @@ func TestCreateAndReuseVM(t *testing.T) {
 	if vm.Creations != 1 || vm.Runs != 2 || vm.Cores != 4 || !vm.Graphics || vm.Password != password {
 		t.Fatalf("unexpected reused VM: %+v", vm)
 	}
+	if vm.DiskSizeGB != 50 {
+		t.Fatalf("existing disk size changed to %d GB", vm.DiskSizeGB)
+	}
 	if vm.Copies != 2 || vm.CopiedSystem != config.System {
 		t.Fatalf("latest guest configuration was not copied once: %+v", vm)
 	}
@@ -126,6 +133,20 @@ func TestCreateAndReuseVM(t *testing.T) {
 	contents, err := os.ReadFile(disk)
 	if err != nil || string(contents) != "guest changes" {
 		t.Fatalf("guest disk was replaced: %q, %v", contents, err)
+	}
+}
+
+func TestCustomDiskSize(t *testing.T) {
+	config := tartFixture(t)
+	config.DiskSize = 64 * 1024
+	s := startTestVM(t, config)
+	s.stop(t)
+	vm, err := readFakeVM(config.StateDirectory)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if vm.DiskSizeGB != 69 {
+		t.Fatalf("disk size = %d GB, want 69 for 64 GiB rounded up", vm.DiskSizeGB)
 	}
 }
 
