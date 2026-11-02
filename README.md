@@ -84,3 +84,9 @@ on `ci/flake-update` and enables auto-merge. Configure a `CI_PR_TOKEN` repositor
 secret with contents and pull requests write permissions, enable repository
 auto-merge, and require the `required` status check in branch protection so updates
 merge only after CI passes.
+
+The `Update inventories` workflow runs every Monday at 00:17 UTC or manually
+through Actions. Separate jobs update Nix installers and macOS images, each with
+its own PR and auto-merge using the same `CI_PR_TOKEN`. Both defaults follow the
+newest versions in their inventories, and PR CI runs the real VM scenarios with
+those defaults before merging when the `required` check is enforced.

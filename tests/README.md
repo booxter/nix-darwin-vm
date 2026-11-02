@@ -37,6 +37,8 @@ GitHub-hosted runners.
 
 Require the `required` status check in branch protection. It succeeds only when
 formatting, flake checks, and VM scenarios all succeed.
+The scenarios use the default macOS image and Nix installer, including the newest
+releases added by inventory update PRs.
 
 The runner needs Nix, macOS 27 or newer, and an unlocked login keychain for its
 service account. Its host configuration is maintained in `booxter/nix`, under
