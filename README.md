@@ -49,7 +49,8 @@ nix run .#darwinConfigurations.example.config.system.build.vm
 
 The build downloads the selected macOS restore image (IPSW) and Nix installer,
 and builds the guest configuration on the host. The first run creates the guest
-disk and an administrator account (`vmadmin` by default), installs
+disk and an administrator account (`system.primaryUser` by default when set,
+otherwise `vmadmin`), installs
 Nix for all users, then copies and activates the configuration over SSH.
 
 Wait for `Ready: guest configuration activated`, then connect from another terminal:
@@ -103,7 +104,7 @@ virtualisation.vmVariant = {
 | `memorySize` | `4096` MiB |
 | `graphics` | `true` (opens a display window) |
 | `stateDirectory` | `./<hostname>-vm`, relative to the launcher's working directory |
-| `bootstrapUser` | `"vmadmin"` |
+| `bootstrapUser` | `system.primaryUser` when set, otherwise `"vmadmin"` |
 | `macosVersion` | Newest version in the [image inventory](images/README.md) |
 | `nixInstaller` | Newest official Nix release in the [installer inventory](installers/README.md) |
 
