@@ -18,17 +18,23 @@ import (
 )
 
 type configuration struct {
-	Name           string       `json:"name"`
-	BootstrapUser  string       `json:"bootstrapUser"`
-	Cores          int          `json:"cores"`
-	MemorySize     int          `json:"memorySize"`
-	DiskSize       int          `json:"diskSize"`
-	MacOSVersion   string       `json:"macosVersion"`
-	Graphics       bool         `json:"graphics"`
-	IPSW           string       `json:"ipsw"`
-	StateDirectory string       `json:"stateDirectory"`
-	NixInstaller   nixInstaller `json:"nixInstaller"`
-	System         string       `json:"system"`
+	Name             string                     `json:"name"`
+	BootstrapUser    string                     `json:"bootstrapUser"`
+	Cores            int                        `json:"cores"`
+	MemorySize       int                        `json:"memorySize"`
+	DiskSize         int                        `json:"diskSize"`
+	MacOSVersion     string                     `json:"macosVersion"`
+	Graphics         bool                       `json:"graphics"`
+	IPSW             string                     `json:"ipsw"`
+	StateDirectory   string                     `json:"stateDirectory"`
+	NixInstaller     nixInstaller               `json:"nixInstaller"`
+	System           string                     `json:"system"`
+	ForwardedSockets map[string]forwardedSocket `json:"forwardedSockets"`
+}
+
+type forwardedSocket struct {
+	HostPath  string `json:"hostPath"`
+	GuestPath string `json:"guestPath"`
 }
 
 var bootstrapUserPattern = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_.-]*$`)
@@ -68,6 +74,11 @@ func loadConfiguration(path string) (configuration, error) {
 	}
 	if !filepath.IsAbs(config.System) {
 		return config, errors.New("system must be an absolute store path")
+	}
+	for name, socket := range config.ForwardedSockets {
+		if socket.HostPath == "" || !filepath.IsAbs(socket.GuestPath) || filepath.Dir(filepath.Clean(socket.GuestPath)) == "/" {
+			return config, fmt.Errorf("forwarded socket %q requires a host path and an absolute guest path in a dedicated directory", name)
+		}
 	}
 	// Tart accepts a UInt16 count of decimal GB, rounded up from MiB.
 	if config.DiskSize <= 0 || config.DiskSize > 65535*1000*1000*1000/(1024*1024) {

@@ -111,6 +111,7 @@ let
           memorySize
           diskSize
           graphics
+          forwardedSockets
           ;
       };
       expected = {
@@ -120,6 +121,7 @@ let
         memorySize = 4096;
         diskSize = 47683;
         graphics = true;
+        forwardedSockets = { };
       };
     };
 
@@ -179,6 +181,7 @@ let
           memorySize
           diskSize
           graphics
+          forwardedSockets
           ;
       };
       expected = {
@@ -189,6 +192,10 @@ let
         memorySize = 8192;
         diskSize = 64 * 1024;
         graphics = false;
+        forwardedSockets.service = {
+          hostPath = "~/.local/service.sock";
+          guestPath = "/Users/builder/service/socket";
+        };
       };
     };
 

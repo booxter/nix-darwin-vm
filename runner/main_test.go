@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -61,7 +62,7 @@ func TestLoadConfiguration(t *testing.T) {
 		System:         "/nix/store/example-system",
 		StateDirectory: "/tmp/guest-vm",
 	}
-	if got != want {
+	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("got %+v, want %+v", got, want)
 	}
 

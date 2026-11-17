@@ -191,8 +191,8 @@ func (t tart) runGuest(ctx context.Context, args []string, g guest, input *os.Fi
 		return err
 	}
 
-	session, cancel := context.WithCancel(ctx)
-	defer cancel()
+	session, cancel := context.WithCancelCause(ctx)
+	defer cancel(nil)
 	command := t.command(session, args...)
 	if err := command.Start(); err != nil {
 		return fmt.Errorf("start Tart: %w", err)
@@ -200,15 +200,18 @@ func (t tart) runGuest(ctx context.Context, args []string, g guest, input *os.Fi
 	exited := make(chan error, 1)
 	go func() {
 		exited <- command.Wait()
-		cancel()
+		cancel(nil)
 	}()
 
-	facts, readyError := t.prepareGuest(session, &g)
+	facts, readyError := t.prepareGuest(session, &g, cancel)
 	if readyError != nil {
-		cancel()
+		cancel(nil)
 		runError := <-exited
 		if ctx.Err() != nil {
 			return ctx.Err()
+		}
+		if cause := context.Cause(session); cause != nil && !errors.Is(cause, context.Canceled) {
+			return cause
 		}
 		if runError != nil && !errors.Is(runError, context.Canceled) {
 			return fmt.Errorf("run VM: %w", runError)
@@ -223,11 +226,14 @@ func (t tart) runGuest(ctx context.Context, args []string, g guest, input *os.Fi
 	var interactionError error
 	if input != nil {
 		interactionError = g.interact(session, input, t.stdout, t.stderr)
-		cancel()
+		cancel(nil)
 	}
 	runError := <-exited
 	if ctx.Err() != nil {
 		return ctx.Err()
+	}
+	if cause := context.Cause(session); cause != nil && !errors.Is(cause, context.Canceled) {
+		return cause
 	}
 	if interactionError != nil && !errors.Is(interactionError, context.Canceled) {
 		return interactionError
@@ -238,8 +244,11 @@ func (t tart) runGuest(ctx context.Context, args []string, g guest, input *os.Fi
 	return nil
 }
 
-func (t tart) prepareGuest(ctx context.Context, g *guest) (systemFacts, error) {
+func (t tart) prepareGuest(ctx context.Context, g *guest, cancel context.CancelCauseFunc) (systemFacts, error) {
 	if err := g.waitReady(ctx, t); err != nil {
+		return systemFacts{}, err
+	}
+	if err := g.forwardSockets(ctx, cancel, t.stderr); err != nil {
 		return systemFacts{}, err
 	}
 	fmt.Fprintln(t.stdout, "Preparing guest Nix")

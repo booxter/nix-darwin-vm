@@ -107,10 +107,18 @@ virtualisation.vmVariant = {
 | `graphics` | `true` (opens a display window) |
 | `stateDirectory` | `./<hostname>-vm`, relative to the launcher's working directory |
 | `bootstrapUser` | `system.primaryUser` when set, otherwise `"vmadmin"` |
+| `forwardedSockets` | `{ }` |
 | `macosVersion` | Newest version in the [image inventory](images/README.md) |
 | `nixInstaller` | Newest official Nix release in the [installer inventory](installers/README.md) |
 
 Audio and clipboard sharing are disabled.
+
+`forwardedSockets` maps names to `hostPath` and absolute `guestPath` strings.
+Host paths beginning with `~/` are expanded at launch. Use a dedicated guest
+directory: the runner sets its mode to 0700 and replaces sockets at the configured
+paths. Forwarding starts before activation and lasts until the runner stops.
+Losing the SSH tunnel, including during a guest reboot, stops the VM. Run
+`system.build.vm` again to reuse the disk and restore forwarding.
 
 `diskSize` is in MiB, rounded up to whole decimal GB for Tart. It applies only
 when creating a VM; changing it does not resize an existing disk. Use a fresh
