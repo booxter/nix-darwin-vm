@@ -157,9 +157,13 @@ in
         pkgs.openssh
       ];
       text = ''
+        # Preserve direct OpenSSH arguments such as vmSsh -v or vmSsh -t.
+        if [[ "''${1-}" != --* ]]; then
+          set -- -- "$@"
+        fi
         exec ${lib.getExe runner} ssh \
           --state-directory ${lib.escapeShellArg config.virtualisation.stateDirectory} \
-          -- "$@"
+          "$@"
       '';
     };
   };

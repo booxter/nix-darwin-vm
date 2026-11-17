@@ -18,6 +18,7 @@ func sshMain(args []string, stderr io.Writer) int {
 	flags := flag.NewFlagSet("runner ssh", flag.ContinueOnError)
 	flags.SetOutput(stderr)
 	directory := flags.String("state-directory", "", "directory containing the running VM's state")
+	forwardAgent := flags.Bool("forward-agent", false, "forward the caller's SSH agent to the guest")
 	if err := flags.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return 0
@@ -26,6 +27,10 @@ func sshMain(args []string, stderr io.Writer) int {
 	}
 	if *directory == "" {
 		fmt.Fprintln(stderr, "runner ssh: --state-directory is required")
+		return 2
+	}
+	if *forwardAgent && os.Getenv("SSH_AUTH_SOCK") == "" {
+		fmt.Fprintln(stderr, "runner ssh: --forward-agent requires SSH_AUTH_SOCK")
 		return 2
 	}
 
@@ -38,7 +43,7 @@ func sshMain(args []string, stderr io.Writer) int {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 	defer stop()
 
-	command, err := guestSSHCommand(ctx, stateDirectory, flags.Args(), stderr)
+	command, err := guestSSHCommand(ctx, stateDirectory, *forwardAgent, flags.Args(), stderr)
 	if err != nil {
 		fmt.Fprintln(stderr, "runner ssh:", err)
 		if ctx.Err() != nil {
@@ -56,7 +61,7 @@ func sshMain(args []string, stderr io.Writer) int {
 	return 0
 }
 
-func guestSSHCommand(ctx context.Context, stateDirectory string, args []string, stderr io.Writer) (*exec.Cmd, error) {
+func guestSSHCommand(ctx context.Context, stateDirectory string, forwardAgent bool, args []string, stderr io.Writer) (*exec.Cmd, error) {
 	credentials := filepath.Join(stateDirectory, "credentials")
 	if _, err := os.Stat(filepath.Join(credentials, "provisioned")); err != nil {
 		return nil, fmt.Errorf("VM is not prepared; start it with system.build.vm first: %w", err)
@@ -84,7 +89,7 @@ func guestSSHCommand(ctx context.Context, stateDirectory string, args []string, 
 	}
 
 	options := append([]string{"-l", string(username), ip.String()}, args...)
-	command := sshCommand(ctx, credentials, options...)
+	command := sshCommand(ctx, credentials, forwardAgent, options...)
 	if command.Err != nil {
 		return nil, command.Err
 	}
@@ -92,8 +97,8 @@ func guestSSHCommand(ctx context.Context, stateDirectory string, args []string, 
 	return command, nil
 }
 
-func sshCommand(ctx context.Context, credentials string, args ...string) *exec.Cmd {
-	command := exec.CommandContext(ctx, "ssh", append(sshOptions(), args...)...)
+func sshCommand(ctx context.Context, credentials string, forwardAgent bool, args ...string) *exec.Cmd {
+	command := exec.CommandContext(ctx, "ssh", append(sshOptions(forwardAgent), args...)...)
 	// Fixed relative filenames avoid OpenSSH path expansion and quoting rules.
 	command.Dir = credentials
 	// Give OpenSSH a chance to restore the terminal before forcing it to exit.
@@ -104,11 +109,10 @@ func sshCommand(ctx context.Context, credentials string, args ...string) *exec.C
 	return command
 }
 
-func sshOptions() []string {
-	return []string{
+func sshOptions(forwardAgent bool) []string {
+	options := []string{
 		"-F", "/dev/null",
 		"-i", "ssh_key",
-		"-o", "IdentityAgent=none",
 		"-o", "IdentitiesOnly=yes",
 		"-o", "PreferredAuthentications=publickey",
 		"-o", "BatchMode=yes",
@@ -121,6 +125,13 @@ func sshOptions() []string {
 		"-o", "ServerAliveInterval=5",
 		"-o", "ServerAliveCountMax=1",
 	}
+
+	// With -F /dev/null, OpenSSH takes the agent from SSH_AUTH_SOCK.
+	// IdentitiesOnly still restricts login to the bootstrap key.
+	if forwardAgent {
+		return append(options, "-A")
+	}
+	return append(options, "-o", "IdentityAgent=none")
 }
 
 func replaceWithSSH(command *exec.Cmd) error {

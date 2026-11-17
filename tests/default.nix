@@ -308,7 +308,8 @@ else
     for launcher in \
       ${lib.getExe minimal.config.system.build.vmSsh} \
       ${lib.getExe customized.config.system.build.vmSsh}; do
-      if "$launcher" true >ssh-output 2>&1; then
+      "$launcher" --help
+      if "$launcher" -v true >ssh-output 2>&1; then
         echo "SSH launcher unexpectedly connected without VM state" >&2
         exit 1
       fi
