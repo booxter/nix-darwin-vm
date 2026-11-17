@@ -46,7 +46,7 @@ func (g guest) openShell(ctx context.Context, input *os.File, stdout, stderr io.
 	// OpenSSH normally restores these itself; also restore them if it is killed.
 	defer term.Restore(int(input.Fd()), state)
 
-	command := sshCommand(ctx, g.directory, "-t", "-p", port, "-l", g.user, host)
+	command := sshCommand(ctx, g.directory, false, "-t", "-p", port, "-l", g.user, host)
 	command.Stdin = input
 	command.Stdout = stdout
 	command.Stderr = stderr

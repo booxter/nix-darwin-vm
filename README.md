@@ -62,9 +62,16 @@ nix run .#darwinConfigurations.example.config.system.build.vmSsh
 nix run .#darwinConfigurations.example.config.system.build.vmSsh -- uname -a
 ```
 
-`vmSsh` requires a running VM. It uses a dedicated SSH key and ignores your SSH
-configuration and agent. With a relative state path, run both launchers from the
-same directory.
+`vmSsh` requires a running VM. It uses a dedicated SSH key for login and ignores
+your SSH configuration. With a relative state path, run both launchers from the
+same directory. To forward your SSH agent for commands inside the guest:
+
+```sh
+nix run .#darwinConfigurations.example.config.system.build.vmSsh -- --forward-agent
+```
+
+Forwarding is opt-in and uses the caller's `SSH_AUTH_SOCK`. Pass an additional
+`--` after launcher options to pass raw SSH options, such as `-- -v`.
 
 To attach a shell directly after activation:
 

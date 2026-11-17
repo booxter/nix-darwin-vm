@@ -179,7 +179,7 @@ in
       text = ''
         exec ${lib.getExe runner} ssh \
           --state-directory ${lib.escapeShellArg config.virtualisation.stateDirectory} \
-          -- "$@"
+          "$@"
       '';
     };
   };
