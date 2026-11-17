@@ -58,34 +58,10 @@ func (g guest) runSSH(ctx context.Context, address string, auth ssh.AuthMethod, 
 }
 
 func (g guest) executeSSH(ctx context.Context, address string, auth ssh.AuthMethod, command string, stdin io.Reader, stdout, stderr io.Writer) error {
-	checkHostKey, err := g.hostKeyCallback()
+	client, err := g.sshClient(ctx, address, auth)
 	if err != nil {
 		return err
 	}
-	connection, err := g.dialer.DialContext(ctx, "tcp", address)
-	if err != nil {
-		return err
-	}
-	defer connection.Close()
-
-	// Bound the entire exchange, including a server that accepts TCP but
-	// never sends an SSH banner. Cancellation closes the connection immediately.
-	deadline, _ := ctx.Deadline()
-	if err := connection.SetDeadline(deadline); err != nil {
-		return err
-	}
-	stop := context.AfterFunc(ctx, func() { connection.Close() })
-	defer stop()
-	config := &ssh.ClientConfig{
-		User:            g.user,
-		Auth:            []ssh.AuthMethod{auth},
-		HostKeyCallback: checkHostKey,
-	}
-	transport, channels, requests, err := ssh.NewClientConn(connection, address, config)
-	if err != nil {
-		return fmt.Errorf("SSH handshake: %w", err)
-	}
-	client := ssh.NewClient(transport, channels, requests)
 	defer client.Close()
 	session, err := client.NewSession()
 	if err != nil {
@@ -96,6 +72,52 @@ func (g guest) executeSSH(ctx context.Context, address string, auth ssh.AuthMeth
 	session.Stdout = stdout
 	session.Stderr = stderr
 	return session.Run(command)
+}
+
+func (g guest) sshClient(ctx context.Context, address string, auth ssh.AuthMethod) (*ssh.Client, error) {
+	checkHostKey, err := g.hostKeyCallback()
+	if err != nil {
+		return nil, err
+	}
+	connection, err := g.dialer.DialContext(ctx, "tcp", address)
+	if err != nil {
+		return nil, err
+	}
+
+	// Bound the entire exchange, including a server that accepts TCP but
+	// never sends an SSH banner. Cancellation closes the connection immediately.
+	deadline, hasDeadline := ctx.Deadline()
+	handshakeDeadline := time.Now().Add(15 * time.Second)
+	if hasDeadline && deadline.Before(handshakeDeadline) {
+		handshakeDeadline = deadline
+	}
+	if err := connection.SetDeadline(handshakeDeadline); err != nil {
+		connection.Close()
+		return nil, err
+	}
+	stop := context.AfterFunc(ctx, func() { connection.Close() })
+	config := &ssh.ClientConfig{
+		User:            g.user,
+		Auth:            []ssh.AuthMethod{auth},
+		HostKeyCallback: checkHostKey,
+	}
+	transport, channels, requests, err := ssh.NewClientConn(connection, address, config)
+	if err != nil {
+		stop()
+		connection.Close()
+		return nil, fmt.Errorf("SSH handshake: %w", err)
+	}
+	if err := connection.SetDeadline(deadline); err != nil {
+		stop()
+		transport.Close()
+		return nil, err
+	}
+	client := ssh.NewClient(transport, channels, requests)
+	go func() {
+		client.Wait()
+		stop()
+	}()
+	return client, nil
 }
 
 func (g guest) hostKeyCallback() (ssh.HostKeyCallback, error) {
