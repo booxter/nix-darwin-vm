@@ -10,7 +10,7 @@ buildGoModule {
   pname = "nix-darwin-vm-runner";
   version = "0.1.0";
   src = ./.;
-  vendorHash = "sha256-MOXCMY/O4xg/bMCUDQFvBf1cvnyA2iZvrlThZNSwTbs=";
+  vendorHash = "sha256-84s7ODMQoj1745fg4NK/OUkeuEDdQutNr6vcjy8F3DA=";
   __darwinAllowLocalNetworking = true;
   nativeCheckInputs = [
     nix

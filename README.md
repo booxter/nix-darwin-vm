@@ -62,9 +62,16 @@ nix run .#darwinConfigurations.example.config.system.build.vmSsh
 nix run .#darwinConfigurations.example.config.system.build.vmSsh -- uname -a
 ```
 
-`vmSsh` requires a running VM. It uses a dedicated SSH key and ignores your SSH
-configuration and agent. With a relative state path, run both launchers from the
-same directory.
+`vmSsh` requires a running VM. It uses a dedicated SSH key for login and ignores
+your SSH configuration. With a relative state path, run both launchers from the
+same directory. To forward your SSH agent for commands inside the guest:
+
+```sh
+nix run .#darwinConfigurations.example.config.system.build.vmSsh -- --forward-agent
+```
+
+Forwarding is opt-in and uses the caller's `SSH_AUTH_SOCK`. Pass an additional
+`--` after launcher options to pass raw SSH options, such as `-- -v`.
 
 To attach a shell directly after activation:
 
@@ -107,10 +114,18 @@ virtualisation.vmVariant = {
 | `graphics` | `true` (opens a display window) |
 | `stateDirectory` | `./<hostname>-vm`, relative to the launcher's working directory |
 | `bootstrapUser` | `system.primaryUser` when set, otherwise `"vmadmin"` |
+| `forwardedSockets` | `{ }` |
 | `macosVersion` | Newest version in the [image inventory](images/README.md) |
 | `nixInstaller` | Newest official Nix release in the [installer inventory](installers/README.md) |
 
 Audio and clipboard sharing are disabled.
+
+`forwardedSockets` maps names to `hostPath` and absolute `guestPath` strings.
+Host paths beginning with `~/` are expanded at launch. Use a dedicated guest
+directory: the runner sets its mode to 0700 and replaces sockets at the configured
+paths. Forwarding starts before activation and lasts until the runner stops.
+Losing the SSH tunnel, including during a guest reboot, stops the VM. Run
+`system.build.vm` again to reuse the disk and restore forwarding.
 
 `diskSize` is in MiB, rounded up to whole decimal GB for Tart. It applies only
 when creating a VM; changing it does not resize an existing disk. Use a fresh

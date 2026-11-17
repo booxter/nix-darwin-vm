@@ -22,6 +22,7 @@ let
       memorySize
       diskSize
       graphics
+      forwardedSockets
       stateDirectory
       ;
     ipsw = config.system.build.ipsw;
@@ -86,6 +87,25 @@ in
         Directory for persistent VM state. Relative paths are resolved from
         the launcher's working directory at runtime.
       '';
+    };
+
+    forwardedSockets = lib.mkOption {
+      type = lib.types.attrsOf (
+        lib.types.submodule {
+          options = {
+            hostPath = lib.mkOption {
+              type = lib.types.str;
+              description = "Host Unix socket path; ~/ is expanded at launch.";
+            };
+            guestPath = lib.mkOption {
+              type = lib.types.strMatching "/.+";
+              description = "Absolute guest Unix socket path.";
+            };
+          };
+        }
+      );
+      default = { };
+      description = "Host Unix sockets exposed to the guest over SSH.";
     };
 
     cores = lib.mkOption {
@@ -159,7 +179,7 @@ in
       text = ''
         exec ${lib.getExe runner} ssh \
           --state-directory ${lib.escapeShellArg config.virtualisation.stateDirectory} \
-          -- "$@"
+          "$@"
       '';
     };
   };

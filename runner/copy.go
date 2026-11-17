@@ -50,7 +50,7 @@ func (g guest) copySystem(ctx context.Context, stdout, stderr io.Writer) error {
 	command.Dir = g.directory
 	// Every option uses fixed filenames or whitespace-free values. The working
 	// directory carries the state path without passing it through NIX_SSHOPTS.
-	command.Env = append(os.Environ(), "NIX_SSHOPTS="+strings.Join(sshOptions(), " "))
+	command.Env = append(os.Environ(), "NIX_SSHOPTS="+strings.Join(sshOptions(false), " "))
 	command.Stdout = stdout
 	command.Stderr = stderr
 	command.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}

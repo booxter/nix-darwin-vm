@@ -464,6 +464,28 @@ func TestNativeSSHRejectsChangedHostKey(t *testing.T) {
 	}
 }
 
+func TestSSHClientClosesOnCancellation(t *testing.T) {
+	g, _ := sshFixture(t)
+	if err := g.bootstrap(t.Context(), "192.0.2.10:22"); err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+	client, err := g.sshClient(ctx, "192.0.2.10:22", ssh.PublicKeys(g.signer))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer client.Close()
+	done := make(chan error, 1)
+	go func() { done <- client.Wait() }()
+	cancel()
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatal("cancellation did not close the SSH client")
+	}
+}
+
 func TestNativeSSHWaitsForBannerAndCancels(t *testing.T) {
 	g, _ := sshFixture(t)
 	g.dialer = &net.Dialer{}

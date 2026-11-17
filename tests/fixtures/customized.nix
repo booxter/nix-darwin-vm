@@ -33,6 +33,10 @@
         memorySize = 8192;
         diskSize = 64 * 1024;
         graphics = false;
+        forwardedSockets.service = {
+          hostPath = "~/.local/service.sock";
+          guestPath = "/Users/builder/service/socket";
+        };
       };
 
       environment.etc."vm-only".text = "guest only";

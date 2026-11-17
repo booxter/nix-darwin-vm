@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/ed25519"
+	"crypto/rand"
 	"errors"
 	"net"
 	"os"
@@ -9,6 +11,9 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/agent"
 )
 
 func runSSHLauncher(t *testing.T, stateDirectory string, port int, args ...string) ([]byte, error) {
@@ -77,4 +82,78 @@ func TestSSHLauncherDoesNotPrepareMissingVM(t *testing.T) {
 func TestSSHArguments(t *testing.T) {
 	checkRun(t, []string{"ssh", "--help"}, 0, "state-directory")
 	checkRun(t, []string{"ssh"}, 2, "--state-directory is required")
+	t.Setenv("SSH_AUTH_SOCK", "")
+	checkRun(t, []string{"ssh", "--state-directory", t.TempDir(), "--forward-agent"}, 2, "requires SSH_AUTH_SOCK")
+}
+
+func TestSSHLauncherForwardsAgentOnRequest(t *testing.T) {
+	g, _, directory := startOpenSSH(t)
+	fakeCommands(t)
+	t.Setenv("NIX_DARWIN_VM_TEST_IP", "127.0.0.1")
+	if err := saveFakeVM(directory, fakeVM{Name: vmName, State: "running"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(g.directory, "provisioned"), nil, 0600); err != nil {
+		t.Fatal(err)
+	}
+	_, port, err := net.SplitHostPort(g.address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	publicKey := serveTestAgent(t, filepath.Join(directory, "agent socket"))
+	executable, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, forward := range []bool{false, true} {
+		args := []string{"ssh", "--state-directory", directory}
+		if forward {
+			args = append(args, "--forward-agent")
+		}
+		args = append(args, "--", "-p", port, "ssh-add", "-L")
+		command := exec.CommandContext(t.Context(), executable, args...)
+		output, err := command.CombinedOutput()
+		if forward && err != nil {
+			t.Fatalf("forwarded agent unavailable: %v; output: %s", err, output)
+		}
+		if strings.Contains(string(output), publicKey) != forward {
+			t.Fatalf("forward=%v: unexpected agent identities: %s", forward, output)
+		}
+	}
+}
+
+func serveTestAgent(t *testing.T, path string) string {
+	t.Helper()
+	_, privateKey, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	keyring := agent.NewKeyring()
+	if err := keyring.Add(agent.AddedKey{PrivateKey: privateKey}); err != nil {
+		t.Fatal(err)
+	}
+	signer, err := ssh.NewSignerFromKey(privateKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	listener, err := net.Listen("unix", path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { listener.Close() })
+	go func() {
+		for {
+			connection, err := listener.Accept()
+			if err != nil {
+				return
+			}
+			go func() {
+				defer connection.Close()
+				agent.ServeAgent(keyring, connection)
+			}()
+		}
+	}()
+	t.Setenv("SSH_AUTH_SOCK", path)
+	return strings.TrimSpace(string(ssh.MarshalAuthorizedKey(signer.PublicKey())))
 }

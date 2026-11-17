@@ -13,6 +13,12 @@ These check formatting, the module interface, the runner, and inventory updaters
 Run `nix fmt` to apply formatting. For end-to-end checks, run the
 [VM integration scenarios](tests/README.md).
 
+The forwarding tests need OpenSSH outside the Nix build sandbox:
+
+```sh
+nix develop -c env NIX_DARWIN_VM_TEST_SSHD=1 go -C runner test ./...
+```
+
 ## CI
 
 The `CI` workflow runs formatting, flake checks, and VM scenarios on pull requests
