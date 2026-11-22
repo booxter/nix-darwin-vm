@@ -18,17 +18,54 @@ import (
 )
 
 type configuration struct {
-	Name           string       `json:"name"`
-	BootstrapUser  string       `json:"bootstrapUser"`
-	Cores          int          `json:"cores"`
-	MemorySize     int          `json:"memorySize"`
-	DiskSize       int          `json:"diskSize"`
-	MacOSVersion   string       `json:"macosVersion"`
-	Graphics       bool         `json:"graphics"`
-	IPSW           string       `json:"ipsw"`
-	StateDirectory string       `json:"stateDirectory"`
-	NixInstaller   nixInstaller `json:"nixInstaller"`
-	System         string       `json:"system"`
+	Name             string                     `json:"name"`
+	BootstrapUser    string                     `json:"bootstrapUser"`
+	Cores            int                        `json:"cores"`
+	MemorySize       int                        `json:"memorySize"`
+	DiskSize         int                        `json:"diskSize"`
+	MacOSVersion     string                     `json:"macosVersion"`
+	Graphics         bool                       `json:"graphics"`
+	IPSW             string                     `json:"ipsw"`
+	StateDirectory   string                     `json:"stateDirectory"`
+	NixInstaller     nixInstaller               `json:"nixInstaller"`
+	System           string                     `json:"system"`
+	ForwardedSockets map[string]forwardedSocket `json:"forwardedSockets"`
+}
+
+type forwardedSocket struct {
+	HostPath  string `json:"hostPath"`
+	GuestPath string `json:"guestPath"`
+	Lifetime  string `json:"lifetime"`
+}
+
+const (
+	activationLifetime = "activation"
+	vmLifetime         = "vm"
+)
+
+func normalizeSockets(sockets map[string]forwardedSocket) error {
+	destinations := make(map[string]string)
+	for name, socket := range sockets {
+		path := filepath.Clean(socket.GuestPath)
+		if socket.HostPath == "" || !filepath.IsAbs(path) || filepath.Dir(path) == "/" {
+			return fmt.Errorf("forwarded socket %q requires a host path and an absolute guest path in a dedicated directory", name)
+		}
+
+		if other, exists := destinations[path]; exists {
+			return fmt.Errorf("forwarded sockets %q and %q share guest path %q", name, other, path)
+		}
+		destinations[path] = name
+		socket.GuestPath = path
+
+		if socket.Lifetime == "" {
+			socket.Lifetime = activationLifetime
+		}
+		if socket.Lifetime != activationLifetime && socket.Lifetime != vmLifetime {
+			return fmt.Errorf("forwarded socket %q has unknown lifetime %q", name, socket.Lifetime)
+		}
+		sockets[name] = socket
+	}
+	return nil
 }
 
 var bootstrapUserPattern = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_.-]*$`)
@@ -68,6 +105,9 @@ func loadConfiguration(path string) (configuration, error) {
 	}
 	if !filepath.IsAbs(config.System) {
 		return config, errors.New("system must be an absolute store path")
+	}
+	if err := normalizeSockets(config.ForwardedSockets); err != nil {
+		return config, err
 	}
 	// Tart accepts a UInt16 count of decimal GB, rounded up from MiB.
 	if config.DiskSize <= 0 || config.DiskSize > 65535*1000*1000*1000/(1024*1024) {

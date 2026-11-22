@@ -18,26 +18,28 @@ import (
 )
 
 type guest struct {
-	directory    string
-	user         string
-	imageVersion string
-	installer    nixInstaller
-	system       string
-	address      string
-	password     string
-	signer       ssh.Signer
-	configured   bool
-	dialer       sshDialer
+	directory        string
+	user             string
+	imageVersion     string
+	installer        nixInstaller
+	system           string
+	address          string
+	password         string
+	signer           ssh.Signer
+	configured       bool
+	dialer           sshDialer
+	forwardedSockets map[string]forwardedSocket
 }
 
 func newGuest(config configuration, dialer sshDialer) guest {
 	return guest{
-		directory:    filepath.Join(config.StateDirectory, "credentials"),
-		user:         config.BootstrapUser,
-		imageVersion: config.MacOSVersion,
-		installer:    config.NixInstaller,
-		system:       config.System,
-		dialer:       dialer,
+		directory:        filepath.Join(config.StateDirectory, "credentials"),
+		user:             config.BootstrapUser,
+		imageVersion:     config.MacOSVersion,
+		installer:        config.NixInstaller,
+		system:           config.System,
+		dialer:           dialer,
+		forwardedSockets: config.ForwardedSockets,
 	}
 }
 

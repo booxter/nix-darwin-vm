@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -61,7 +62,7 @@ func TestLoadConfiguration(t *testing.T) {
 		System:         "/nix/store/example-system",
 		StateDirectory: "/tmp/guest-vm",
 	}
-	if got != want {
+	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("got %+v, want %+v", got, want)
 	}
 
@@ -76,6 +77,16 @@ func TestLoadConfiguration(t *testing.T) {
 		if err == nil || !strings.Contains(err.Error(), "diskSize must be positive") {
 			t.Fatalf("diskSize %d: got %v, want disk size validation error", size, err)
 		}
+	}
+}
+
+func TestForwardedSocketsRejectSharedGuestPath(t *testing.T) {
+	sockets := map[string]forwardedSocket{
+		"keyservice": {HostPath: "/host/keyservice", GuestPath: "/guest/run/service"},
+		"agent":      {HostPath: "/host/agent", GuestPath: "/guest/run/./service", Lifetime: "vm"},
+	}
+	if err := normalizeSockets(sockets); err == nil || !strings.Contains(err.Error(), "share guest path") {
+		t.Fatalf("conflicting guest paths: %v", err)
 	}
 }
 

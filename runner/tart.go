@@ -192,7 +192,11 @@ func (t tart) runGuest(ctx context.Context, args []string, g guest, input *os.Fi
 	}
 
 	session, cancel := context.WithCancel(ctx)
-	defer cancel()
+	var tunnels sync.WaitGroup
+	defer func() {
+		cancel()
+		tunnels.Wait()
+	}()
 	command := t.command(session, args...)
 	if err := command.Start(); err != nil {
 		return fmt.Errorf("start Tart: %w", err)
@@ -203,7 +207,7 @@ func (t tart) runGuest(ctx context.Context, args []string, g guest, input *os.Fi
 		cancel()
 	}()
 
-	facts, readyError := t.prepareGuest(session, &g)
+	facts, readyError := t.prepareGuest(session, &g, &tunnels)
 	if readyError != nil {
 		cancel()
 		runError := <-exited
@@ -238,7 +242,7 @@ func (t tart) runGuest(ctx context.Context, args []string, g guest, input *os.Fi
 	return nil
 }
 
-func (t tart) prepareGuest(ctx context.Context, g *guest) (systemFacts, error) {
+func (t tart) prepareGuest(ctx context.Context, g *guest, tunnels *sync.WaitGroup) (systemFacts, error) {
 	if err := g.waitReady(ctx, t); err != nil {
 		return systemFacts{}, err
 	}
@@ -254,7 +258,7 @@ func (t tart) prepareGuest(ctx context.Context, g *guest) (systemFacts, error) {
 		return systemFacts{}, err
 	}
 	fmt.Fprintln(t.stdout, "Activating guest configuration")
-	if err := g.activateSystem(ctx, t.stdout, t.stderr); err != nil {
+	if err := t.activateWithSockets(ctx, *g, tunnels); err != nil {
 		return systemFacts{}, err
 	}
 	if err := g.waitReady(ctx, t); err != nil {

@@ -116,10 +116,33 @@ virtualisation.vmVariant = {
 | `graphics` | `true` (opens a display window) |
 | `stateDirectory` | `./<hostname>-vm`, relative to the launcher's working directory |
 | `bootstrapUser` | `system.primaryUser` when set, otherwise `"vmadmin"` |
+| `forwardedSockets` | `{ }` |
 | `macosVersion` | Newest version in the [image inventory](images/README.md) |
 | `nixInstaller` | Newest official Nix release in the [installer inventory](installers/README.md) |
 
 Audio and clipboard sharing are disabled.
+
+`forwardedSockets` exposes host Unix sockets to the bootstrap user and guest
+root. For example, a forwarded SOPS key service lets the guest request decryption
+using keys available to that service. Choose a host service with the permissions
+the guest needs.
+
+```nix
+virtualisation.vmVariant.virtualisation.forwardedSockets.sops = {
+  hostPath = "~/.local/run/sops.sock";
+  guestPath = "/Users/vmadmin/forwarded/sops.sock";
+};
+```
+
+Use a dedicated guest directory and a distinct absolute path for each socket.
+The runner creates a symlink at each guest path and reuses it on later runs.
+An existing file, directory, or socket at that path prevents setup.
+Relative host paths resolve from the launcher's working directory, and `~/`
+expands to the caller's home. The default `lifetime = "activation"` opens the
+forward for guest activation and closes all its connections when activation
+returns. Set `lifetime = "vm"` for a service needed afterward. If its tunnel
+disconnects after activation, the VM keeps running and the launcher reconnects.
+Guest clients must reopen their connections.
 
 `diskSize` is in MiB, rounded up to whole decimal GB for Tart. It applies only
 when creating a VM; changing it does not resize an existing disk. Use a fresh
