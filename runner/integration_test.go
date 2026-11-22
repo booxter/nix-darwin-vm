@@ -3,21 +3,37 @@
 package main
 
 import (
+	"strings"
 	"testing"
 	"time"
 )
 
 func TestIntegrationLifecycle(t *testing.T) {
 	v := newIntegrationVM(t)
+	activation, agentKey := v.socketServers()
+
 	t.Log("first boot: provision, install Nix, and activate")
-	v.start(v.fixtures.Initial, false)
-	v.verify(v.fixtures.Initial)
+	v.start(v.fixtures.Sockets, false)
+	v.verify(v.fixtures.Sockets)
+
+	t.Log("activation socket closes held connections and rejects new ones")
+	v.expectActivationSocketRevoked(activation)
+
+	t.Log("VM socket recovers after transport failure without a guest reboot")
+	v.expectSocketRecovery()
+
+	t.Log("SSH agent forwarding requires opt-in")
+	if keys, err := v.runSSH("ssh-add -L", nil, "--forward-agent"); err != nil || !strings.Contains(keys, agentKey) {
+		t.Fatalf("forwarded test agent: %v\n%s", err, keys)
+	}
+	v.expectSSH(`test -z "$SSH_AUTH_SOCK" && printf absent`, "absent")
+
 	v.ssh(`printf persisted > "$HOME/vm-test-persistent"`, nil)
 	v.shutdown()
 
 	t.Log("cold boot: reuse the same configuration and guest disk")
-	v.start(v.fixtures.Initial, false)
-	v.verify(v.fixtures.Initial)
+	v.start(v.fixtures.Sockets, false)
+	v.verify(v.fixtures.Sockets)
 	v.expectSSH(`cat "$HOME/vm-test-persistent"`, "persisted")
 	v.shutdown()
 

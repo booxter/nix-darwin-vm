@@ -7,9 +7,8 @@ let
   inherit (pkgs) lib;
   user = "vmtester";
   stateDirectory = "VM's 100% state";
-
   configuration =
-    message:
+    message: extraModules:
     nix-darwin.lib.darwinSystem {
       modules = [
         vmModule
@@ -25,11 +24,13 @@ let
             environment.etc."vm-test".text = "${message}\n";
           };
         }
-      ];
+      ]
+      ++ extraModules;
     };
 
-  initial = configuration "initial";
-  updated = configuration "updated";
+  initial = configuration "initial" [ ];
+  updated = configuration "updated" [ ];
+  sockets = configuration "sockets" [ (import ./fixtures/forwarding.nix { inherit pkgs user; }) ];
   fixture =
     system: message:
     let
@@ -48,6 +49,7 @@ let
     tart = lib.getExe initial.pkgs.tart;
     initial = fixture initial "initial";
     updated = fixture updated "updated";
+    sockets = fixture sockets "sockets";
   };
 
   driver = (pkgs.callPackage ../runner { }).overrideAttrs {
@@ -68,9 +70,13 @@ let
 in
 pkgs.writeShellApplication {
   name = "test-vm";
-  runtimeInputs = [ pkgs.unixtools.script ];
+  runtimeInputs = [
+    pkgs.openssh
+    pkgs.unixtools.script
+  ];
+  inheritPath = false;
   text = ''
-    # Retain both scenarios' closures while Nix GC scans the test process environment.
+    # Retain the fixture closures while Nix GC scans the test process environment.
     export NIX_DARWIN_VM_TEST_CONFIG=${fixtures}
     exec ${driver}/bin/vm-integration-tests \
       -test.v -test.timeout=45m -test.run=TestIntegration \

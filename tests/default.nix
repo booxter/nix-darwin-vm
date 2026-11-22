@@ -111,6 +111,7 @@ let
           memorySize
           diskSize
           graphics
+          forwardedSockets
           ;
       };
       expected = {
@@ -120,6 +121,7 @@ let
         memorySize = 4096;
         diskSize = 47683;
         graphics = true;
+        forwardedSockets = { };
       };
     };
 
@@ -179,6 +181,7 @@ let
           memorySize
           diskSize
           graphics
+          forwardedSockets
           ;
       };
       expected = {
@@ -189,6 +192,11 @@ let
         memorySize = 8192;
         diskSize = 64 * 1024;
         graphics = false;
+        forwardedSockets.service = {
+          hostPath = "~/.local/service.sock";
+          guestPath = "/Users/builder/service/socket";
+          lifetime = "activation";
+        };
       };
     };
 
@@ -308,7 +316,8 @@ else
     for launcher in \
       ${lib.getExe minimal.config.system.build.vmSsh} \
       ${lib.getExe customized.config.system.build.vmSsh}; do
-      if "$launcher" true >ssh-output 2>&1; then
+      "$launcher" --help
+      if "$launcher" -v true >ssh-output 2>&1; then
         echo "SSH launcher unexpectedly connected without VM state" >&2
         exit 1
       fi

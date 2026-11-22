@@ -19,6 +19,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Check SSH forwarding
+        run: nix develop --no-update-lock-file -c env NIX_DARWIN_VM_TEST_SSHD=1 go -C runner test -run '^TestOpenSSH'
       - name: Run VM scenarios
         env:
           TMPDIR: ${{ runner.temp }}/vm-tests

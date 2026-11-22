@@ -21,7 +21,7 @@ nix run .#test-vm -- -test.run TestIntegrationTerminal
 
 | Scenario | Coverage |
 | --- | --- |
-| `TestIntegrationLifecycle` | Account creation, Nix installation, activation, cold-boot reuse, persistent files, configuration updates |
+| `TestIntegrationLifecycle` | Account creation, Nix installation, activation, socket lifetimes, tunnel recovery, SSH agent forwarding, cold-boot reuse, persistent files, configuration updates |
 | `TestIntegrationTerminal` | Guest PTY, Ctrl-C, logout, reconnect, stopping at the reconnect prompt, guest shutdown while waiting there |
 
 ## Inspect failures
@@ -34,7 +34,7 @@ Cleanup stops remaining test VMs. Ctrl-C cancels the suite and starts cleanup.
 
 ## GitHub Actions
 
-CI runs both scenarios on pull requests and pushes to `main`, using the default
+CI runs these scenarios on pull requests and pushes to `main`, using the default
 macOS image and Nix installer. Run them manually through
 **Actions → VM → Run workflow**.
 
