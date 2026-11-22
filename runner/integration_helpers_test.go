@@ -29,7 +29,7 @@ type integrationFixture struct {
 }
 
 type integrationFixtures struct {
-	Initial, Updated           integrationFixture
+	Initial, Updated, Sockets  integrationFixture
 	User, StateDirectory, Tart string
 }
 
@@ -75,6 +75,7 @@ type integrationProcess struct {
 	output *terminalOutput
 	done   chan struct{}
 	err    error
+	pid    int
 }
 
 func (v *integrationVM) start(fixture integrationFixture, interactive bool) {
@@ -108,6 +109,7 @@ func (v *integrationVM) start(fixture integrationFixture, interactive bool) {
 		log.Close()
 		v.t.Fatal(err)
 	}
+	p.pid = command.Process.Pid
 	v.process = p
 	go func() {
 		p.err = command.Wait()
@@ -167,10 +169,10 @@ func (p *integrationProcess) expectExit(t *testing.T, code int) {
 	}
 }
 
-func (v *integrationVM) runSSH(command string, input io.Reader) (string, error) {
+func (v *integrationVM) runSSH(command string, input io.Reader, options ...string) (string, error) {
 	ctx, cancel := context.WithTimeout(v.ctx, 30*time.Second)
 	defer cancel()
-	client := exec.CommandContext(ctx, v.fixtures.Initial.SSH, command)
+	client := exec.CommandContext(ctx, v.fixtures.Initial.SSH, append(options, command)...)
 	client.Dir = v.directory
 	client.Stdin = input
 	output, err := client.CombinedOutput()
