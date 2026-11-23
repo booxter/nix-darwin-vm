@@ -668,6 +668,10 @@
       "url": "https://releases.nixos.org/nix/nix-2.35.6/nix-2.35.6-aarch64-darwin.tar.xz",
       "hash": "sha256-debI8/SIMToHSq1FRIOw7I0jszFuGvdfJ2IhWUJylpA="
     },
+    "2.36.0": {
+      "url": "https://releases.nixos.org/nix/nix-2.36.0/nix-2.36.0-aarch64-darwin.tar.xz",
+      "hash": "sha256-Dhyt2R3hWA8cXDTZAEtlxkZfDroFWjPCA8MFv2jB52U="
+    },
     "2.4": {
       "url": "https://releases.nixos.org/nix/nix-2.4/nix-2.4-aarch64-darwin.tar.xz",
       "hash": "sha256-R/SgKZp4zjluQ3wuyijWIZmDcw7diA8jhzmTWnceKeQ="
